@@ -148,7 +148,7 @@ function Cadastro() {
                     <p>{mensagem}</p>
                 </div>
                 <div>
-                    <input className={styles.buttongroup} type="submit" value="Cadastrar" />
+                    <input className={styles.bottomgroup} type="submit" value="Cadastrar" />
                 </div>
             </form>
         </div>

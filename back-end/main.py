@@ -1,6 +1,6 @@
-from flask import Flask, render_template, redirect, url_for , request, jsonify
-from models import db, Usuario, format_usuario
-from werkzeug.security import generate_password_hash
+from flask import Flask, render_template, redirect, url_for , request, jsonify, session
+from models import *
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask("__main__")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost/projetogp'
@@ -18,42 +18,81 @@ def cadastro():
     return render_template("index.html")
 
 
-
+# cadastro empresa
 @app.route('/cadastrar', methods=['POST'])
-def cadastrar_usuario():
+def cadastrar_estabelecimento():
     data = request.get_json()
 
-    # Aqui você pode acessar os dados enviados pelo React
     nome = data['nome']
-    usuario = data['usuario']
-    senha = data['senha']
-    tipoUsuario = data['tipoUsuario']
-    senha_hash = generate_password_hash(senha)
+    cnpj = formatar_cnpj(data['cnpj'])
+    senha = generate_password_hash((data['senha']))
+    cidade = data['cidade']
+    bairro= data['bairro']
+    rua = data['rua']
+    numero  = data['numero']
+    email = data['email']
+    conf_email = data['confirmarEmail']
+    if email == conf_email:
+    
+        estabelecimento = Estabelecimento(nome, cnpj, senha, cidade, bairro, rua, numero, email)
+        db.session.add(estabelecimento)
+        db.session.commit()
+        # Exemplo de como você pode processar os dados
+        # (aqui você pode realizar operações de banco de dados, validações, etc.)
+        # Retornando uma resposta (por exemplo, um status de sucesso)
+        return jsonify({'message': 'Estabelecimento cadastrado com sucesso'}), 200
 
-    user = Usuario(nome, usuario, senha_hash, tipoUsuario)
-    db.session.add(user)
-    db.session.commit()
-    # Exemplo de como você pode processar os dados
-    # (aqui você pode realizar operações de banco de dados, validações, etc.)
-    print(f"Nome: {nome}, Usuário: {usuario}, Senha: {senha}, Tipo de Usuário: {tipoUsuario}")
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        cnpjuser = formatar_cnpj(username)
+        
+        # Verificar se é um usuário
+        user = Usuario.query.filter_by(usuario=username).first()
+        if user and check_password_hash(user.senha, password):
+            session['user_id'] = user.id
+            if user.tipo == 'user':
+                return redirect(url_for('dashboard_user'))
+            elif user.tipo == 'cnpj':
+                return redirect(url_for('dashboard_cnpj'))
+        
+        # Verificar se é um estabelecimento
+        estabelecimento = Estabelecimento.query.filter_by(cnpj=cnpjuser).first()
+        if estabelecimento and check_password_hash(estabelecimento.senha, password):
+            session['estabelecimento_id'] = estabelecimento.id
+            return redirect(url_for('dashboard_estabelecimento'))
+        
+        # Se nenhum usuário ou estabelecimento correspondente for encontrado
+        error = 'Credenciais inválidas. Verifique o usuário, CNPJ ou senha.'
+        return render_template('login.html', error=error)
+    
+    return render_template('login.html')
 
-    # Retornando uma resposta (por exemplo, um status de sucesso)
-    return jsonify({'message': 'Usuário cadastrado com sucesso'}), 200
+
+
+
+
+
+
+
+
 
 
 
 #cadastro usuario
-@app.route('/cadastrousuario', methods = ['POST'])
-def cadastroUsuario():
-    nome = request.json['nome']
-    usuario = request.json['usuario']
-    senha = request.json['senha']
-    tipo = request.json['tipo']
-    senha_hash = generate_password_hash(senha)
-    user = Usuario(nome, usuario, senha_hash, tipo)
-    db.session.add(user)
-    db.session.commit()
-    return format_usuario(user)
+# @app.route('/cadastrousuario', methods = ['POST'])
+# def cadastroUsuario():
+#     nome = request.json['nome']
+#     usuario = request.json['usuario']
+#     senha = request.json['senha']
+#     tipo = request.json['tipo']
+#     senha_hash = generate_password_hash(senha)
+#     user = Usuario(nome, usuario, senha_hash, tipo)
+#     db.session.add(user)
+#     db.session.commit()
+#     return format_usuario(user)
 
 
 

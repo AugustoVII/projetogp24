@@ -1,12 +1,10 @@
 import  React  from 'react'
 import './App.css';
-import Cadastro from './components/cadastro/Cadastro';
-
-
+import CadastroEstabelecimento from './components/cadastro/CadastroEstabelecimento';
 function App() {
   return (
     <div className="App">
-      <Cadastro/>
+      <CadastroEstabelecimento/>
     </div>
   );
 }

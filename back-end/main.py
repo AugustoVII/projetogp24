@@ -24,7 +24,7 @@ def cadastrar_estabelecimento():
     data = request.get_json()
 
     nome = data['nome']
-    cnpj = formatar_cnpj(data['cnpj'])
+    cnpj = data['cnpj']
     senha = generate_password_hash((data['senha']))
     cidade = data['cidade']
     bairro= data['bairro']
@@ -47,7 +47,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        cnpjuser = formatar_cnpj(username)
+        
         
         # Verificar se é um usuário
         user = Usuario.query.filter_by(usuario=username).first()
@@ -59,7 +59,7 @@ def login():
                 return redirect(url_for('dashboard_cnpj'))
         
         # Verificar se é um estabelecimento
-        estabelecimento = Estabelecimento.query.filter_by(cnpj=cnpjuser).first()
+        estabelecimento = Estabelecimento.query.filter_by(cnpj=username).first()
         if estabelecimento and check_password_hash(estabelecimento.senha, password):
             session['estabelecimento_id'] = estabelecimento.id
             return redirect(url_for('dashboard_estabelecimento'))

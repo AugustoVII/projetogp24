@@ -37,69 +37,68 @@ function CadastroEstabelecimento(){
 
     function cadastrar_estabelecimento(e){
       e.preventDefault()
-
-        if (senha !== senha2){
-            setMensagem('Senhas não coincidem')
-        }
-        else{
-            setMensagem('')
-        }
         if (senha.length < 6){
             setMensagem('Insira uma senha com no minimo 6 caracteres')
+            return;
+        }
+        if (senha !== senha2){
+            setMensagem('Senhas não coincidem')
+            return;
         }
         if (email !== confirmarEmail){
             setMensagem('Email não coincidem')
+            return;
         }
-        if (validarEmail(email)) {
-            if (cnpj.length === 18){
-              const formData = {
-                nome,
-                cnpj,
-                senha,
-                cidade,
-                bairro,
-                rua,
-                numero,
-                email,
-                confirmarEmail
-            };
-            fetch('/cadastrar', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(formData)
-          })
-          .then(response => {
-            if (response.ok) {
-                // Limpar campos e exibir mensagem de sucesso
-                setNome('');
-                setCNPJ('');
-                setCidade('');
-                setSenha('');
-                setSenha2('');
-                setMensagem('Usuário cadastrado com sucesso!');
-                setBairro('');
-                setRua('');
-                setNumero('');
-                setEmail('');
-                setConfirmarEmail('');
-            }
-        })
-        .catch(error => {
-          console.error('Erro ao cadastrar usuário:', error);
-          setMensagem('Erro ao cadastrar usuário. Tente novamente.');
-      });
-            }
-            else{
-                setMensagem('Insira um CNPJ valido')
-            }
-          } else {
-            setMensagem('Insira um email valido')
-          }
-        
-        
-    }
+        if (cnpj.length !== 18){
+          setMensagem('Insira um CNPJ válido');
+          return;
+      
+        }
+        if (!validarEmail(email)) {
+          setMensagem('Insira um email válido');
+          return; 
+      }
+      const formData = {
+        nome,
+        cnpj,
+        senha,
+        cidade,
+        bairro,
+        rua,
+        numero,
+        email,
+        confirmarEmail
+    };
+
+    fetch('/cadastrar', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => {
+        if (response.ok) {
+            setNome('');
+            setCNPJ('');
+            setCidade('');
+            setSenha('');
+            setSenha2('');
+            setMensagem('Usuário cadastrado com sucesso!');
+            setBairro('');
+            setRua('');
+            setNumero('');
+            setEmail('');
+            setConfirmarEmail('');
+        } else {
+            setMensagem('Erro ao cadastrar usuário. Tente novamente.');
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao cadastrar usuário:', error);
+        setMensagem('Erro ao cadastrar usuário. Tente novamente.');
+    });
+}
 
     const [nome, setNome] = useState('');
     const [cnpj, setCNPJ] = useState('');
@@ -123,13 +122,15 @@ function CadastroEstabelecimento(){
                         <input type="text"
                         className={styles.input} 
                         placeholder="Digite o nome da empresa" 
+                        value={nome} 
                         onChange={(e) => setNome(e.target.value)}
                         required/>
 
                         <p className={styles.namegroup}><FaCity /> Cidade:</p>
                         <input type="text"
                         className={styles.input} 
-                        placeholder="Digite a cidade da empresa" 
+                        placeholder="Digite a cidade da empresa"
+                        value={cidade}  
                         onChange={(e) => setCidade(e.target.value)}
                         required/>
 
@@ -137,6 +138,7 @@ function CadastroEstabelecimento(){
                         <input type="text"
                         className={styles.input} 
                         placeholder="Digite a rua da empresa" 
+                        value={rua} 
                         onChange={(e) => setRua(e.target.value)}
                         required/>
 
@@ -144,6 +146,7 @@ function CadastroEstabelecimento(){
                         <input type="text"
                         className={styles.input} 
                         placeholder="Digite o email da empresa" 
+                        value={email} 
                         onChange={(e) => setEmail(e.target.value)}
                         required/>
                     
@@ -151,6 +154,7 @@ function CadastroEstabelecimento(){
                         <input type="password" 
                         className={styles.input}
                         placeholder="Digite sua senha"
+                        value={senha} 
                         onChange={(e) => setSenha(e.target.value)} 
                         required/>
                     </div>
@@ -168,6 +172,7 @@ function CadastroEstabelecimento(){
                         <input type="text"
                         className={styles.input} 
                         placeholder="Digite o bairro da empresa" 
+                        value={bairro} 
                         onChange={(e) => setBairro(e.target.value)}
                         required/>
 
@@ -175,6 +180,7 @@ function CadastroEstabelecimento(){
                         <input type="number"
                         className={styles.input} 
                         placeholder="Digite o numero da empresa" 
+                        value={numero} 
                         onChange={(e) => setNumero(e.target.value)}
                         required/>
 
@@ -182,6 +188,7 @@ function CadastroEstabelecimento(){
                         <input type="text"
                         className={styles.input} 
                         placeholder="Confirme o email da empresa" 
+                        value={confirmarEmail} 
                         onChange={(e) => setConfirmarEmail(e.target.value)}
                         required/>
 
@@ -189,6 +196,7 @@ function CadastroEstabelecimento(){
                         <input type="password" 
                         className={styles.input}
                         placeholder="Confirme sua senha"
+                        value={senha2} 
                         onChange={(e) => setSenha2(e.target.value)} 
                         required/>
                     </div>    

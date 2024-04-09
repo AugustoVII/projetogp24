@@ -2,6 +2,14 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+
+class Role:
+    ESTABELECIMENTO = 'estabelecimento'
+    GERENTE = 'gerente'
+    GARCOM = 'garcom'
+    CAIXA = 'caixa'
+
+
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
@@ -10,16 +18,36 @@ class Usuario(db.Model):
     tipo = db.Column(db.String(50), nullable=False)
     excluido = db.Column(db.Boolean, default=False)
     estabelecimento_id = db.Column(db.Integer, db.ForeignKey('estabelecimento.id'))
-    estabelecimento = db.relationship('Estabelecimento', backref=db.backref('usuarios', lazy=True))
+    estabelecimento = db.relationship('Estabelecimento', backref=db.backref('usuarios', lazy=True)) 
+    role = db.Column(db.String(50), nullable=False, default=Role.GARCOM)
     
     def __repr__(self):
         return f"Usuario: {self}"
     
-    def __init__(self, nome, usuario, senha, tipo):
+    def __init__(self, nome, usuario, senha, tipo, estabelecimento_id):
         self.nome = nome
         self.usuario = usuario
         self.senha = senha
         self.tipo = tipo
+        self.estabelecimento_id = estabelecimento_id
+        self.role = tipo
+
+    def is_gerente(self):
+        return self.role == Role.GERENTE
+
+    def is_caixa(self):
+        return self.role == Role.CAIXA
+
+    def is_garcom(self):
+        return self.role == Role.GARCOM
+    
+    def is_active(self):
+        return True
+    
+    def get_id(self):
+        return str(self.id)
+
+    
 
 def format_usuario(usuario):
     return {
@@ -40,6 +68,10 @@ class Estabelecimento(db.Model):
     rua = db.Column(db.String(256), nullable=False)
     numero = db.Column(db.String(15), nullable=False)
     excluido = db.Column(db.Boolean, default=False)
+    role = db.Column(db.String(50), nullable=False, default=Role.ESTABELECIMENTO)
+
+    def is_estabelecimento(self):
+        return self.role == Role.ESTABELECIMENTO
     
     
     def __repr__(self):
@@ -54,6 +86,12 @@ class Estabelecimento(db.Model):
         self.rua = rua
         self.numero = numero
         self.email = email
+
+    def is_active(self):
+        return True
+    
+    def get_id(self):
+        return str(self.id)
 
 
 def format_estabelecimento(estabelecimento):

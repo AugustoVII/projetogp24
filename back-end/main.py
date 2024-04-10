@@ -11,6 +11,19 @@ db.init_app(app)
 
 app.secret_key = 'CHAVESECRETA'
 
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+# Rota para servir os arquivos estáticos
+@app.route('/static/<path:path>')
+def static_proxy(path):
+    return app.send_static_file(path)
+
+# Rota para lidar com todas as outras rotas do lado do cliente
+@app.route('/<path:path>')
+def catch_all(path):
+    return render_template('index.html')
 
 with app.app_context():
     db.create_all()
@@ -33,14 +46,6 @@ def load_user(user_id):
             if estabelecimento:
                 return estabelecimento
     return None
-
-@app.route("/")
-def index():
-    return redirect(url_for('cadastro'))
-
-@app.route("/cadastro")
-def cadastro():
-    return render_template("index.html")
 
 
 # cadastro empresa

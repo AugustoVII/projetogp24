@@ -1,4 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+import uuid
 
 db = SQLAlchemy()
 
@@ -10,14 +12,14 @@ class Role:
     CAIXA = 'caixa'
 
 
-class Usuario(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+class Usuario(db.Model, UserMixin):
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     nome = db.Column(db.String(100), nullable=False)
     usuario = db.Column(db.String(100), unique=True, nullable=False)
     senha = db.Column(db.String(256), nullable=False)
     tipo = db.Column(db.String(50), nullable=False)
     excluido = db.Column(db.Boolean, default=False)
-    estabelecimento_id = db.Column(db.Integer, db.ForeignKey('estabelecimento.id'))
+    estabelecimento_id = db.Column(db.String(36), db.ForeignKey('estabelecimento.id'))
     estabelecimento = db.relationship('Estabelecimento', backref=db.backref('usuarios', lazy=True)) 
     role = db.Column(db.String(50), nullable=False, default=Role.GARCOM)
     
@@ -25,6 +27,7 @@ class Usuario(db.Model):
         return f"Usuario: {self}"
     
     def __init__(self, nome, usuario, senha, tipo, estabelecimento_id):
+        self.id = str(uuid.uuid4())
         self.nome = nome
         self.usuario = usuario
         self.senha = senha
@@ -46,6 +49,11 @@ class Usuario(db.Model):
     
     def get_id(self):
         return str(self.id)
+    
+    def is_authenticated(self):
+        return True
+    def is_anonymous(self):
+        return False
 
     
 
@@ -57,8 +65,8 @@ def format_usuario(usuario):
         "senha": usuario.senha
     }
 
-class Estabelecimento(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+class Estabelecimento(db.Model , UserMixin):
+    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()))
     nome = db.Column(db.String(100), nullable=False)
     cnpj = db.Column(db.String(18), unique=True, nullable=False)
     senha = db.Column(db.String(256), nullable=False)
@@ -92,6 +100,11 @@ class Estabelecimento(db.Model):
     
     def get_id(self):
         return str(self.id)
+     
+    def is_authenticated(self):
+        return True
+    def is_anonymous(self):
+        return False
 
 
 def format_estabelecimento(estabelecimento):

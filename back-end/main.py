@@ -2,6 +2,8 @@ from flask import Flask, render_template, redirect, url_for , request, jsonify, 
 from models import *
 from flask_login import LoginManager, current_user, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from utils import *
+
 
 app = Flask("__main__")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost/projetogp'
@@ -19,7 +21,18 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    return Estabelecimento.query.get(int(user_id))
+    # Verifica se o ID de usuário é um número
+    if user_id is not None:
+        # Tenta buscar o usuário como um Usuario
+        usuario = Usuario.query.get((user_id))
+        if usuario:
+            return usuario
+        else:
+            # Se não for encontrado como Usuario, tenta buscar como Estabelecimento
+            estabelecimento = Estabelecimento.query.get((user_id))
+            if estabelecimento:
+                return estabelecimento
+    return None
 
 @app.route("/")
 def index():
@@ -62,7 +75,7 @@ def cadastrar_usuario():
     usuario = data['usuario']
     senha = generate_password_hash((data['senha']))
     tipo = data['tipo']
-    estabelecimento_id = 1
+    estabelecimento_id = "13c4ecea-e9bd-43d2-b748-04f7aa8ad760"
 
     usuarioaux = Usuario(nome, usuario,senha,tipo, estabelecimento_id)
     db.session.add(usuarioaux)
@@ -84,16 +97,52 @@ def login():
     if user and check_password_hash(user.senha, password):
         session['user_id'] = user.id
         login_user(user)
-        return jsonify({'message': 'estabelecimento'})
+        return redirect(url_for('homeestabelecimento'))
     else:
-        user = Usuario.query.filter_by(usuario=username).first()
-        if user and check_password_hash(user.senha, password):
-            login_user(user)
-            return jsonify({'message': 'usuario'})
+        useraux = Usuario.query.filter_by(usuario=username).first()
+        if useraux and check_password_hash(useraux.senha, password):
+            login_user(useraux)
+            if current_user.is_gerente():
+                return redirect(url_for('homegerente'))
+            elif current_user.is_garcom():
+                return redirect(url_for('homegarcom'))
+            elif current_user.is_caixa():
+                return redirect(url_for('homecaixa'))
+        else:
+            return "usuario ou senha errado"
 
-        
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
 
 
+@app.route('/homeestabelecimento')
+@estabelecimento_required
+def homeestabelecimento():       
+    return "estabelecimento"
+
+@app.route('/homegarcom')
+@garcom_required
+def homegarcom():       
+    return "garcom"
+
+@app.route('/homegerente')
+@gerente_required
+def homegerente():
+    if current_user.is_gerente():       
+        return "gerente"
+    else:
+        return "nao é gerente"
+
+@app.route('/homecaixa')
+@caixa_required
+def homecaixa():
+    if current_user.is_caixa():       
+        return "caixa"
+    else:
+        return "nao é caixa"
 
 
 if __name__ == '__main__':

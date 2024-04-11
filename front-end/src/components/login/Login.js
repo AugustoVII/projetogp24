@@ -23,6 +23,7 @@ function Login(){
             if (response.ok) {
                 setUsername('');
                 setPassword('');
+                
             } else {
                 setMensagem('Verifique seus dados.');
             }

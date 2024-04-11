@@ -3,12 +3,14 @@ from models import *
 from flask_login import LoginManager, current_user, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils import *
+from flask_cors import CORS
+
 
 
 app = Flask("__main__")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost/projetogp'
 db.init_app(app)
-
+CORS(app)
 app.secret_key = 'CHAVESECRETA'
 
 @app.route('/')
@@ -70,6 +72,7 @@ def cadastrar_estabelecimento():
         # Exemplo de como você pode processar os dados
         # (aqui você pode realizar operações de banco de dados, validações, etc.)
         # Retornando uma resposta (por exemplo, um status de sucesso)
+        # return redirect(url_for('login'))
         return jsonify({'message': 'Estabelecimento cadastrado com sucesso'}), 200
 
 # cadastro usuario
@@ -102,17 +105,17 @@ def login():
     if user and check_password_hash(user.senha, password):
         session['user_id'] = user.id
         login_user(user)
-        return redirect(url_for('homeestabelecimento'))
+        return jsonify({'tipoUsuario': "estabelecimento"})
     else:
         useraux = Usuario.query.filter_by(usuario=username).first()
         if useraux and check_password_hash(useraux.senha, password):
             login_user(useraux)
             if current_user.is_gerente():
-                return redirect(url_for('homegerente'))
+                return jsonify({'tipoUsuario': "gerente"})
             elif current_user.is_garcom():
-                return redirect(url_for('homegarcom'))
+                return jsonify({'tipoUsuario': "garcom"})
             elif current_user.is_caixa():
-                return redirect(url_for('homecaixa'))
+                return jsonify({'tipoUsuario': "caixa"})
         else:
             return "usuario ou senha errado"
 

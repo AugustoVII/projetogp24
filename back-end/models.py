@@ -66,7 +66,7 @@ def format_usuario(usuario):
     }
 
 class Estabelecimento(db.Model , UserMixin):
-    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()))
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     nome = db.Column(db.String(100), nullable=False)
     cnpj = db.Column(db.String(18), unique=True, nullable=False)
     senha = db.Column(db.String(256), nullable=False)
@@ -86,6 +86,7 @@ class Estabelecimento(db.Model , UserMixin):
         return f"Estabelecimento: {self}"
     
     def __init__(self, nome, cnpj, senha, cidade, bairro, rua, numero, email):
+        self.id = str(uuid.uuid4())
         self.nome = nome
         self.cnpj = cnpj
         self.senha = senha

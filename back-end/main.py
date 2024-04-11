@@ -77,13 +77,13 @@ def cadastrar_estabelecimento():
 
 # cadastro usuario
 @app.route('/cadastrarusuario', methods=['POST'])
-def cadastrar_usuario():
+def cadastrarUsuario():
     data = request.get_json()
     nome = data['nome']
     usuario = data['usuario']
     senha = generate_password_hash((data['senha']))
-    tipo = data['tipo']
-    estabelecimento_id = "13c4ecea-e9bd-43d2-b748-04f7aa8ad760"
+    tipo = data['tipoUsuario']
+    estabelecimento_id = current_user.id
 
     usuarioaux = Usuario(nome, usuario,senha,tipo, estabelecimento_id)
     db.session.add(usuarioaux)

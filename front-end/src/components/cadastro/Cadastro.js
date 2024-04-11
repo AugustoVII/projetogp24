@@ -33,7 +33,7 @@ function Cadastro() {
         };
         
         // Enviar dados para o Flask via requisição POST
-        fetch('/cadastrar', {
+        fetch('/cadastrarusuario', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

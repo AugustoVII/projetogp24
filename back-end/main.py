@@ -110,6 +110,7 @@ def login():
         useraux = Usuario.query.filter_by(usuario=username).first()
         if useraux and check_password_hash(useraux.senha, password):
             login_user(useraux)
+            # enviar tipo de usuario para o front apos o login
             if current_user.is_gerente():
                 return jsonify({'tipoUsuario': "gerente"})
             elif current_user.is_garcom():

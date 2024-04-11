@@ -71,7 +71,7 @@ function Cadastro() {
     return (
         <div>
             <form className={styles.form} onSubmit={cadastrarUsuario}>
-                <h1>Cadastro</h1>
+                <h1>Cadastro Funcionario</h1>
                 <div className={styles.inputcontainer}>
                     <div className={styles.inputgroup}>
                         <p className={styles.namegroup}><FiUser /> Nome:</p>

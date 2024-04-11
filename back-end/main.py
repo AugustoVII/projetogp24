@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for , request, jsonify, session
 from models import *
-from flask_login import LoginManager, current_user, login_user, logout_user
+from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils import *
 from flask_cors import CORS
@@ -77,6 +77,8 @@ def cadastrar_estabelecimento():
 
 # cadastro usuario
 @app.route('/cadastrarusuario', methods=['POST'])
+@login_required
+@estabelecimento_required
 def cadastrarUsuario():
     data = request.get_json()
     nome = data['nome']
@@ -90,7 +92,11 @@ def cadastrarUsuario():
     db.session.commit()
     return jsonify({'message': 'Usuario cadastrado com sucesso'}), 200
 
-
+@app.route('/cadastro', methods=['GET'])
+@login_required
+@estabelecimento_required
+def cadastro():
+    return render_template('index.html')
 
 
 

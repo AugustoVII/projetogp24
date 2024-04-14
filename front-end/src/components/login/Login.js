@@ -6,6 +6,28 @@ import { FiUser } from 'react-icons/fi';
 import { FaBuilding } from 'react-icons/fa';
 
 function Login() {
+  const handleChange = (event) => {
+    let { value } = event.target;
+
+    value = value.replace(/\D/g, '');
+    value = value.slice(0, 14);
+
+    if (value.length <= 2) {
+        value = value.replace(/^(\d{0,2})/, '$1');
+      } else if (value.length <= 5) {
+        value = value.replace(/^(\d{0,2})(\d{0,3})/, '$1.$2');
+      } else if (value.length <= 8) {
+        value = value.replace(/^(\d{0,2})(\d{0,3})(\d{0,3})/, '$1.$2.$3');
+      } else if (value.length <= 12) {
+        value = value.replace(/^(\d{0,2})(\d{0,3})(\d{0,3})(\d{0,4})/, '$1.$2.$3/$4');
+      } else {
+        value = value.replace(/^(\d{0,2})(\d{0,3})(\d{0,3})(\d{0,4})(\d{0,2})/, '$1.$2.$3/$4-$5');
+        
+      }
+
+      setUsername(value);
+  };
+  
   const history = useHistory();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -46,6 +68,8 @@ function Login() {
   };
 
   const trocaUsuario = (opcao) => {
+    setUsername('');
+    setPassword('');
     if (tipoLogin === opcao) {
       setTipoLogin(null);
     } else {
@@ -78,16 +102,30 @@ function Login() {
 
         <div className={styles.inputcontainer}>
           <div className={styles.inputgroup}>
-            {tipoLogin === 'Funcionario' && <p className={styles.namegroup}><FiUser /> Login:</p>}
-            {tipoLogin === 'Empresa' && <p className={styles.namegroup}><FaBuilding /> CNPJ:</p>}
+            {tipoLogin === 'Funcionario' && (
+            <>
+            <p className={styles.namegroup}><FiUser /> Login:</p>
             <input
               type="text"
               className={styles.input}
-              placeholder="Digite seus dados"
+              placeholder="Digite seu login"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              required
-            />
+              required/>
+            </>
+          )}
+            {tipoLogin === 'Empresa' && (
+            <>
+            <p className={styles.namegroup}><FaBuilding /> CNPJ:</p>
+              <input type="text" 
+              className={styles.input}
+              placeholder="Digite seu CNPJ"
+              value={username} 
+              onChange={handleChange}
+              required/>
+              </>
+            )}
+
             <p className={styles.namegroup}><RiLockPasswordLine /> Senha:</p>
             <input
               type="password"

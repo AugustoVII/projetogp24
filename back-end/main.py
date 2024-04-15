@@ -135,6 +135,24 @@ def logout():
     return redirect(url_for('login'))
 
 
+@app.route('/listausuarios')
+@login_required
+@estabelecimento_required
+def listausuarios():
+    estabelecimento_idaux = current_user.id
+    usuarios = Usuario.query.filter_by(estabelecimento_id=estabelecimento_idaux).order_by(Usuario.id.asc()).all()
+    usuario_list = []
+    for usuario in usuarios:
+        usuario_data = {
+            'id': usuario.id,
+            'nome': usuario.nome,
+            'tipo': usuario.tipo
+        }
+        usuario_list.append(usuario_data)
+    return {'usuarios': usuario_list}
+
+
+
 @app.route('/homeestabelecimento')
 @estabelecimento_required
 def homeestabelecimento():       

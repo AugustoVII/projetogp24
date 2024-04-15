@@ -98,7 +98,9 @@ def cadastrarUsuario():
 def cadastro():
     return render_template('index.html')
 
-
+@app.errorhandler(403)
+def forbidden(error):
+    return redirect(url_for('login'))
 
 @app.route('/login', methods=['POST'])
 def login():

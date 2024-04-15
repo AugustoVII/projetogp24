@@ -143,14 +143,28 @@ def listausuarios():
     usuarios = Usuario.query.filter_by(estabelecimento_id=estabelecimento_idaux).order_by(Usuario.id.asc()).all()
     usuario_list = []
     for usuario in usuarios:
-        usuario_data = {
-            'id': usuario.id,
-            'nome': usuario.nome,
-            'tipo': usuario.tipo
-        }
-        usuario_list.append(usuario_data)
+        if usuario.excluido != True:
+            usuario_data = {
+                'id': usuario.id,
+                'nome': usuario.nome,
+                'tipo': usuario.tipo
+            }
+            usuario_list.append(usuario_data)
     return {'usuarios': usuario_list}
 
+
+@app.route('/excluirusuario/<id>')
+@login_required
+@estabelecimento_required
+def excluir_usuario(id):
+    usuario = Usuario.query.filter_by(id=id).one()
+    if usuario:
+        if usuario.excluido != True:
+            usuario.excluido = True
+            db.session.commit()
+            return "usuario excluido com sucesso!"
+        else:
+            return "usuario ja esta excluido!"
 
 
 @app.route('/homeestabelecimento')

@@ -98,6 +98,12 @@ def cadastrarUsuario():
 def cadastro():
     return render_template('index.html')
 
+@app.route('/listausuarios', methods=['GET'])
+@login_required
+@estabelecimento_required
+def listagem():
+    return render_template('index.html')
+
 @app.errorhandler(403)
 def forbidden(error):
     return redirect(url_for('login'))
@@ -138,7 +144,7 @@ def logout():
 @app.route('/listausuario')
 @login_required
 @estabelecimento_required
-def listausuarios():
+def listausuario():
     estabelecimento_idaux = current_user.id
     usuarios = Usuario.query.filter_by(estabelecimento_id=estabelecimento_idaux).order_by(Usuario.id.asc()).all()
     usuario_list = []

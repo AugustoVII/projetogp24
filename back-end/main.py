@@ -135,7 +135,7 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/listausuarios')
+@app.route('/listausuario')
 @login_required
 @estabelecimento_required
 def listausuarios():

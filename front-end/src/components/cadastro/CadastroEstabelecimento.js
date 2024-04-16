@@ -5,6 +5,7 @@ import { TbNumber } from "react-icons/tb";
 import { FaBuilding, FaRegAddressCard, FaRoad } from "react-icons/fa";
 import { FaCity, FaTreeCity } from "react-icons/fa6";
 import { MdOutlineMail, MdEmail} from "react-icons/md";
+import { Link } from 'react-router-dom';
 
 function CadastroEstabelecimento(){
 
@@ -202,6 +203,9 @@ function CadastroEstabelecimento(){
                         required/>
                     </div>    
                 </div>
+                <div>
+                    <p>Já possui cadastro?<Link to="/login">Login</Link> </p>
+                </div>  
                 <div>
                     <p>{mensagem}</p>
                 </div>    

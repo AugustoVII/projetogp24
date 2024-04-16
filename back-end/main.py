@@ -98,12 +98,6 @@ def cadastrarUsuario():
 def cadastro():
     return render_template('index.html')
 
-@app.route('/listausuarios', methods=['GET'])
-@login_required
-@estabelecimento_required
-def listagem():
-    return render_template('index.html')
-
 @app.errorhandler(403)
 def forbidden(error):
     return redirect(url_for('login'))
@@ -140,6 +134,11 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
+@app.route('/listausuarios', methods=['GET'])
+@login_required
+@estabelecimento_required
+def listagem():
+    return render_template('index.html')
 
 @app.route('/listausuario')
 @login_required

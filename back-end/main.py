@@ -9,7 +9,7 @@ from estabelecimento import *
 
 app = Flask("__main__")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost/projetogp'
-db.init_app(app)
+bd.init_app(app)
 CORS(app)
 app.secret_key = 'CHAVESECRETA'
 
@@ -28,7 +28,7 @@ def catch_all(path):
     return render_template('index.html')
 
 with app.app_context():
-    db.create_all()
+    bd.create_all()
 
 login_manager = LoginManager()
 login_manager.login_view = 'login'
@@ -67,8 +67,8 @@ def cadastrar_estabelecimento():
     if email == conf_email:
     
         estabelecimento = Estabelecimento(nome, cnpj, senha, cidade, bairro, rua, numero, email)
-        db.session.add(estabelecimento)
-        db.session.commit()
+        bd.session.add(estabelecimento)
+        bd.session.commit()
         # Exemplo de como você pode processar os dados
         # (aqui você pode realizar operações de banco de dados, validações, etc.)
         # Retornando uma resposta (por exemplo, um status de sucesso)
@@ -76,8 +76,6 @@ def cadastrar_estabelecimento():
         return jsonify({'message': 'Estabelecimento cadastrado com sucesso'}), 200
 
 # cadastro funcionario
-
-
 @app.route('/cadastrarusuario', methods=['POST'])
 @login_required
 @estabelecimento_required
@@ -90,8 +88,8 @@ def cadastrarUsuario():
     estabelecimento_id = current_user.id
 
     usuarioaux = Usuario(nome, usuario,senha,tipo, estabelecimento_id)
-    db.session.add(usuarioaux)
-    db.session.commit()
+    bd.session.add(usuarioaux)
+    bd.session.commit()
     return jsonify({'message': 'Usuario cadastrado com sucesso'}), 200
 
 @app.route('/cadastro', methods=['GET'])
@@ -190,6 +188,70 @@ def homecaixa():
         return "caixa"
     else:
         return "nao é caixa"
+
+
+
+
+@app.route('/adicionarcategoria', methods=['POST'])
+def adicionarcategoria():
+    data = request.get_json()
+    nome = data['nome']
+    categoria = Categoria(nome)
+    if categoria:
+        bd.session.add(categoria)
+        bd.session.commit()
+        return "categoria adicionada"
+    else:
+        return "ocorreu algum erro tente novamente"
+
+
+@app.route('/adicionarproduto', methods=['POST'])
+def adicionarproduto():
+    data = request.get_json()
+    nome = data['nome']
+    categoria = data['categoria']
+    valor = str_to_numeric(data['valor'])
+    produto = Produto(nome,categoria,valor)
+    if produto:
+        bd.session.add(produto)
+        bd.session.commit()
+        return "produto adicionado com sucesso!"
+    else:
+        return "ocorreu algum erro, tente novamente"
+
+
+@app.route('/adicionarpedido', methods=['POST'])
+def adicionarpedido():
+    data = request.get_json()
+    produto_id = data['produto']
+    mesa_id = data['mesa']
+    pedido = Pedido(1,"PREPARANDO", mesa_id)
+    produto = Produto.query.get(produto_id)
+    mesa = Mesa(mesa_id)
+    pedido.adicionar_produto(produto)
+    mesa.adicionar_pedido(pedido)
+    bd.session.add(pedido)
+    bd.session.commit()
+    return "ok"
+
+@app.route('/abrirmesa', methods=['POST'])
+def abrirmesa():
+    data = request.get_json()
+    num = data['numero']
+    mesa = Mesa(num)
+    bd.session.add(mesa)
+    bd.session.commit()
+    return "mesa aberta"
+
+
+
+
+
+
+
+
+
+
 
 
 if __name__ == '__main__':

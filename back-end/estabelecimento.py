@@ -21,7 +21,7 @@ def excluirFuncionario(id):
     if usuario:
         if usuario.excluido != True:
             usuario.excluido = True
-            db.session.commit()
+            bd.session.commit()
             return True
         else:
             return False

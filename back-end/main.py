@@ -4,7 +4,7 @@ from flask_login import LoginManager, current_user, login_user, logout_user, log
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils import *
 from flask_cors import CORS
-
+from estabelecimento import *
 
 
 app = Flask("__main__")
@@ -75,7 +75,9 @@ def cadastrar_estabelecimento():
         # return redirect(url_for('login'))
         return jsonify({'message': 'Estabelecimento cadastrado com sucesso'}), 200
 
-# cadastro usuario
+# cadastro funcionario
+
+
 @app.route('/cadastrarusuario', methods=['POST'])
 @login_required
 @estabelecimento_required
@@ -144,45 +146,35 @@ def listagem():
 @login_required
 @estabelecimento_required
 def listausuario():
-    estabelecimento_idaux = current_user.id
-    usuarios = Usuario.query.filter_by(estabelecimento_id=estabelecimento_idaux).order_by(Usuario.id.asc()).all()
-    usuario_list = []
-    for usuario in usuarios:
-        if usuario.excluido != True:
-            usuario_data = {
-                'id': usuario.id,
-                'nome': usuario.nome,
-                'tipo': usuario.tipo
-            }
-            usuario_list.append(usuario_data)
-    return {'usuarios': usuario_list}
+    lista = obterListaFuncionarios(current_user.id)
+    return lista
 
 
 @app.route('/excluirusuario/<id>')
 @login_required
 @estabelecimento_required
 def excluir_usuario(id):
-    usuario = Usuario.query.filter_by(id=id).one()
-    if usuario:
-        if usuario.excluido != True:
-            usuario.excluido = True
-            db.session.commit()
-            return "usuario excluido com sucesso!"
-        else:
-            return "usuario ja esta excluido!"
+    x = excluirFuncionario(id)
+    if x :
+        return "Usuario excluido com sucesso!"
+    else:
+        return "Usuario nao encontrado, ou ja se encontra excluido "
 
 
 @app.route('/homeestabelecimento')
+@login_required
 @estabelecimento_required
 def homeestabelecimento():       
     return "estabelecimento"
 
 @app.route('/homegarcom')
+@login_required
 @garcom_required
 def homegarcom():       
     return "garcom"
 
 @app.route('/homegerente')
+@login_required
 @gerente_required
 def homegerente():
     if current_user.is_gerente():       
@@ -191,6 +183,7 @@ def homegerente():
         return "nao é gerente"
 
 @app.route('/homecaixa')
+@login_required
 @caixa_required
 def homecaixa():
     if current_user.is_caixa():       

@@ -2,9 +2,31 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 import uuid
 from decimal import Decimal
+from peewee import *
+import re
 
-bd = SQLAlchemy()
 
+
+DATABASE = {
+    'name': 'projetogp3',
+    'user': 'postgres',
+    'password': 'postgres',
+    'host': 'localhost',  # ou o endereço do seu servidor PostgreSQL
+    'port': 5432,          # a porta padrão do PostgreSQL é 5432
+}
+
+database = PostgresqlDatabase(
+    DATABASE['name'],
+    user=DATABASE['user'],
+    password=DATABASE['password'],
+    host=DATABASE['host'],
+    port=DATABASE['port']
+)
+
+
+class BaseModel(Model):
+    class Meta:
+        database = database
 
 class Role:
     ESTABELECIMENTO = 'estabelecimento'
@@ -12,29 +34,34 @@ class Role:
     GARCOM = 'garcom'
     CAIXA = 'caixa'
 
+class Estabelecimento(BaseModel, UserMixin):
+    id = UUIDField(primary_key=True, default=uuid.uuid4)
+    nome = CharField(max_length=100)
+    cnpj = CharField(max_length=18, unique=True)
+    senha = CharField(max_length=256)
+    email = CharField(max_length=256)
+    cidade = CharField(max_length=256)
+    bairro = CharField(max_length=256)
+    rua = CharField(max_length=256)
+    numero = CharField(max_length=15)
+    excluido = BooleanField(default=False)
+    role = CharField(max_length=50, default=Role.ESTABELECIMENTO)
 
-class Usuario(bd.Model, UserMixin):
-    id = bd.Column(bd.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    nome = bd.Column(bd.String(100), nullable=False)
-    usuario = bd.Column(bd.String(100), unique=True, nullable=False)
-    senha = bd.Column(bd.String(256), nullable=False)
-    tipo = bd.Column(bd.String(50), nullable=False)
-    excluido = bd.Column(bd.Boolean, default=False)
-    estabelecimento_id = bd.Column(bd.String(36), bd.ForeignKey('estabelecimento.id'))
-    estabelecimento = bd.relationship('Estabelecimento', backref=bd.backref('usuarios', lazy=True)) 
-    role = bd.Column(bd.String(50), nullable=False, default=Role.GARCOM)
-    
+    def is_estabelecimento(self):
+        return self.role == Role.ESTABELECIMENTO
+
     def __repr__(self):
-        return f"Usuario: {self}"
-    
-    def __init__(self, nome, usuario, senha, tipo, estabelecimento_id):
-        self.id = str(uuid.uuid4())
-        self.nome = nome
-        self.usuario = usuario
-        self.senha = senha
-        self.tipo = tipo
-        self.estabelecimento_id = estabelecimento_id
-        self.role = tipo
+        return f"Estabelecimento: {self}"
+
+class Usuario(BaseModel, UserMixin):
+    id = UUIDField(primary_key=True, default=uuid.uuid4)
+    nome = CharField(max_length=100)
+    usuario = CharField(max_length=100, unique=True)
+    senha = CharField(max_length=256)
+    tipo = CharField(max_length=50)
+    excluido = BooleanField(default=False)
+    estabelecimento_id = ForeignKeyField(Estabelecimento, backref='usuarios')
+    role = CharField(max_length=50, default=Role.GARCOM)
 
     def is_gerente(self):
         return self.role == Role.GERENTE
@@ -44,20 +71,16 @@ class Usuario(bd.Model, UserMixin):
 
     def is_garcom(self):
         return self.role == Role.GARCOM
-    
-    def is_active(self):
-        return True
-    
-    def get_id(self):
-        return str(self.id)
-    
-    def is_authenticated(self):
-        return True
-    def is_anonymous(self):
-        return False
 
-    
+    def __repr__(self):
+        return f"Usuario: {self}"
 
+# Inicialize o banco de dados e crie tabelas
+def create_tables():
+    with database:
+        database.create_tables([Estabelecimento, Usuario, Categoria, Produto, Mesa, Pedido, PedidoProduto])
+
+# Funções de formatação
 def format_usuario(usuario):
     return {
         "nome": usuario.nome,
@@ -65,49 +88,6 @@ def format_usuario(usuario):
         "tipo": usuario.tipo,
         "senha": usuario.senha
     }
-
-class Estabelecimento(bd.Model , UserMixin):
-    id = bd.Column(bd.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    nome = bd.Column(bd.String(100), nullable=False)
-    cnpj = bd.Column(bd.String(18), unique=True, nullable=False)
-    senha = bd.Column(bd.String(256), nullable=False)
-    email = bd.Column(bd.String(256), nullable=False)
-    cidade = bd.Column(bd.String(256), nullable=False)
-    bairro = bd.Column(bd.String(256), nullable=False)
-    rua = bd.Column(bd.String(256), nullable=False)
-    numero = bd.Column(bd.String(15), nullable=False)
-    excluido = bd.Column(bd.Boolean, default=False)
-    role = bd.Column(bd.String(50), nullable=False, default=Role.ESTABELECIMENTO)
-
-    def is_estabelecimento(self):
-        return self.role == Role.ESTABELECIMENTO
-    
-    
-    def __repr__(self):
-        return f"Estabelecimento: {self}"
-    
-    def __init__(self, nome, cnpj, senha, cidade, bairro, rua, numero, email):
-        self.id = str(uuid.uuid4())
-        self.nome = nome
-        self.cnpj = cnpj
-        self.senha = senha
-        self.cidade = cidade
-        self.bairro = bairro
-        self.rua = rua
-        self.numero = numero
-        self.email = email
-
-    def is_active(self):
-        return True
-    
-    def get_id(self):
-        return str(self.id)
-     
-    def is_authenticated(self):
-        return True
-    def is_anonymous(self):
-        return False
-
 
 def format_estabelecimento(estabelecimento):
     return {
@@ -124,34 +104,60 @@ def formatar_cnpj(cnpj):
     return cnpj_formatado
 
 
-class Categoria(bd.Model):
-    id = bd.Column(bd.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    nome = bd.Column(bd.String(100), nullable=False, unique=True)
-
-    def __init__(self, nome):
-        self.id = str(uuid.uuid4())
-        self.nome = nome
-
-    def __repr__(self):
-        return f"Categoria: {self.nome}"
-
+# Classe para Categoria
+class Categoria(BaseModel):
+    nome = CharField(unique=True)
     
 
-class Produto(bd.Model):
-    id = bd.Column(bd.Integer, primary_key=True)
-    nome = bd.Column(bd.String(100), nullable=False,unique=True)
-    valor = bd.Column(bd.Numeric(precision=10, scale=2), nullable=False)
-    categoria_id = bd.Column(bd.String(36), bd.ForeignKey('categoria.id'))
-    categoria = bd.relationship('Categoria', backref=bd.backref('produto', lazy=True)) 
+# Classe para Produto
+class Produto(BaseModel):
+    nome = CharField(unique = True)
+    valor = DecimalField(max_digits=10, decimal_places=2)
+    categoria = ForeignKeyField(Categoria, backref='produtos')  # Relacionamento com Categoria
 
-    def __init__(self, nome, categoriaid, valor):
-        self.nome = nome
-        self.categoria_id = categoriaid
-        self.valor = valor
+# Classe para Mesa
+class Mesa(BaseModel):
+    numero = IntegerField(unique=True)
+    status = CharField(choices=['livre', 'ocupada', 'fechada'])
+
+    def listar_pedidos(self):
+        # Retornar todos os pedidos associados a esta mesa
+        return self.pedidos
     
-    def __repr__(self):
-        return f"Produto : {self.nome}"
+# Classe para Pedido
+class Pedido(BaseModel):
+    mesa = ForeignKeyField(Mesa, backref='pedidos')  # Relacionamento com Mesa
+    status = CharField(choices=['preparando', 'entregue', "pago"])
+
+    def adicionar_produto(self, produto, quantidade=1):
+        # Criar uma nova entrada na tabela PedidoProduto
+        PedidoProduto.create(pedido=self, produto=produto, quantidade=quantidade)
+
+    def remover_produto(self, produto):
+        try:
+            # Encontrar a entrada na tabela PedidoProduto que corresponde ao produto a ser removido
+            pedido_produto = PedidoProduto.get(pedido=self, produto=produto)
+            pedido_produto.delete_instance()  # Deletar a entrada associada
+            return True  # Produto removido com sucesso
+        except PedidoProduto.DoesNotExist:
+            return False  # Produto não encontrado no pedido
+        
+    def listar_produtos(self):
+        # Retornar todos os produtos associados a este pedido
+        return [item.produto for item in self.itens_pedido]
     
+def proximo_numero_pedido():
+    query = Pedido.select(fn.MAX(Pedido.id))
+    maior_id = query.scalar() or 0
+    return maior_id + 1
+
+# Classe para os produtos em um Pedido (Muitos-para-Muitos)
+class PedidoProduto(BaseModel):
+    pedido = ForeignKeyField(Pedido, backref='itens_pedido')
+    produto = ForeignKeyField(Produto)
+    quantidade = IntegerField(default=1)
+
+
 
 def str_to_numeric(value_str):
     try:
@@ -162,60 +168,28 @@ def str_to_numeric(value_str):
         return None
 
 
-class Mesa(bd.Model):
-    id = bd.Column(bd.Integer, primary_key=True)
-    numero = bd.Column(bd.Integer, unique=True, nullable=False)
-    status = bd.Column(bd.String, default='LIVRE', nullable=False)
-    pedidos = bd.relationship("Pedido", secondary= 'mesa_pedido_association', back_populates="mesa")
+def extrairErro(mensagem):
+    mensagem_erro = str(mensagem)
+    match = re.search(r'Chave \(nome\)=\((.*?)\)', mensagem_erro)
+    if match:
+        valorExtraido = match.group(1)
+        return (f"chave violada: {valorExtraido}")
+    else:
+        return("nao foi possivel identificar o erro!")
 
-    def __repr__(self):
-        return f"<Mesa(id={self.id}, numero={self.numero}, status='{self.status}')>"
-    
-    def __init__(self, numero):
-        self.status = 'LIVRE'
-        self.numero = numero
-        self.pedidos = []  # Inicializa a lista de pedidos como vazia
-
-    def adicionar_pedido(self, pedido):
-        self.pedidos.append(pedido)
-
-    def fechar_mesa(self):
-        self.status = 'fechada'
-    
-
-
-
-class Pedido(bd.Model):
-    id = id = bd.Column(bd.Integer, primary_key=True)
-    numero = bd.Column(bd.Integer, nullable=False)
-    mesa_id = bd.Column(bd.Integer, bd.ForeignKey('mesa.id')) 
-    mesa = bd.relationship("Mesa", back_populates="pedidos")
-    produtos = bd.relationship("Produto", secondary='pedido_produto_association', backref="pedidos")
-    status = bd.Column(bd.String, default='PREPARANDO', nullable=False)
-    
-    def __init__(self, numero, status, mesaid):
-        self.status = status
-        self.numero = numero
-        self.produtos = []
-        self.mesa_id = mesaid
-
-    def adicionar_produto(self, produto):
-        self.produtos.append(produto)
-
-
-    def __repr__(self):
-        return f"<Pedido(id={self.id}, numero={self.numero}, status={self.status})>"
-
-pedido_produto_association = bd.Table(
-    'pedido_produto_association',
-    bd.metadata,
-    bd.Column('pedido_id', bd.Integer, bd.ForeignKey('pedido.id')),
-    bd.Column('produto_id', bd.Integer, bd.ForeignKey('produto.id'))
-)
-
-mesa_pedido_association = bd.Table(
-    'mesa_pedido_association',
-    bd.metadata,
-    bd.Column('mesa_id', bd.Integer, bd.ForeignKey('mesa.id')),
-    bd.Column('pedido_id', bd.Integer, bd.ForeignKey('pedido.id'))
-)
+def calcularConta(idmesa):
+    consulta = (PedidoProduto.select(PedidoProduto.produto , PedidoProduto.quantidade, Produto.valor)
+                    .join(Pedido)
+                    .join(Produto, on=(PedidoProduto.produto == Produto.id))
+                    .where(Pedido.mesa == idmesa and Pedido.status != "pago"))
+    total = 0
+    if consulta:
+        for item in consulta:
+            nome_produto = item.produto.nome
+            quantidade = item.quantidade
+            valor_produto = item.produto.valor
+            total_item = quantidade * valor_produto
+            total = total + total_item
+        return (f"total = {total} ")
+    else: 
+        print("nao foi encontrado pedidos")

@@ -88,6 +88,8 @@ def login():
                     return jsonify({'tipoUsuario': 'garcom'})
                 elif usuario.is_caixa():
                     return jsonify({'tipoUsuario': 'caixa'})
+                elif usuario.is_cozinha():
+                    return jsonify({'tipoUsuario': 'cozinha'})
             else:
                 return jsonify({'error': 'Senha incorreta'}), 401
 

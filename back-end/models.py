@@ -33,6 +33,7 @@ class Role:
     GERENTE = 'gerente'
     GARCOM = 'garcom'
     CAIXA = 'caixa'
+    COZINHA = 'cozinha'
 
 class Estabelecimento(BaseModel, UserMixin):
     id = UUIDField(primary_key=True, default=uuid.uuid4)
@@ -71,6 +72,9 @@ class Usuario(BaseModel, UserMixin):
 
     def is_garcom(self):
         return self.role == Role.GARCOM
+    
+    def is_cozinha(self):
+        return self.role == Role.COZINHA
 
     def __repr__(self):
         return f"Usuario: {self}"

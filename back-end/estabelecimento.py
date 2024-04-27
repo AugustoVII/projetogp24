@@ -43,3 +43,24 @@ def excluirFuncionario(id):
             return False  # Usuário não encontrado
     except Usuario.DoesNotExist:
         return False  # Usuário não encontrado
+    
+
+def atualizarFuncionario(id, nome, username,senha, tipo):
+    try:
+        # Tenta obter o usuário pelo ID
+        usuario = Usuario.get_by_id(id)
+        
+        # Verifica se o usuário foi encontrado
+        if usuario:
+            usuario.nome = nome
+            usuario.usuario = username
+            usuario.senha = senha
+            usuario.tipo = tipo
+            usuario.role = tipo
+            usuario.save()
+            return True  # Indica que o usuário foi alterado com sucesso
+           
+        else:
+            return False  # Usuário não encontrado
+    except Usuario.DoesNotExist:
+        return False  # Usuário não encontrado

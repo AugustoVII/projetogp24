@@ -74,6 +74,9 @@ class Usuario(BaseModel, UserMixin):
 
     def __repr__(self):
         return f"Usuario: {self}"
+    
+    def getNome(self):
+        return self.nome
 
 # Inicialize o banco de dados e crie tabelas
 def create_tables():

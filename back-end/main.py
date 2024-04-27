@@ -157,16 +157,43 @@ def listausuario():
     lista = obterListaFuncionarios(current_user.id)
     return lista
 
-
+# fakedelet para usuario
 @app.route('/excluirusuario/<id>')
 @login_required
 @estabelecimento_required
 def excluir_usuario(id):
     x = excluirFuncionario(id)
     if x :
-        return "Usuario excluido com sucesso!"
+        return jsonify({'message': 'Usuario excluido com sucesso'}), 200
     else:
-        return "Usuario nao encontrado, ou ja se encontra excluido "
+        return jsonify({'message': 'Usuario nao encontrado, ou ja se encontra excluido'}), 200
+
+# atualizar usuario com base no id
+@app.route('/atualizarusuario/<id>', methods=['POST'])
+@login_required
+@estabelecimento_required
+def atualizarusuario(id):
+    data = request.get_json()
+    nome = data['nome']
+    usuario = data['usuario']
+    senha = generate_password_hash((data['senha']))
+    tipo = data['tipo']
+    x = atualizarFuncionario(id, nome,usuario,senha,tipo)
+    if x :
+        return jsonify({'message': 'Usuario atualizado com sucesso!'}), 200
+    else:
+        return jsonify({'message': 'Usuario nao encontrado!'}), 200
+
+@app.route('/infusuario')
+@login_required
+def infusuario():
+    usuario = load_user(current_user.id)
+    nome = usuario.nome
+    tipo = usuario.role
+    return jsonify({'nome': nome,'tipo':tipo}), 200
+
+
+
 
 
 @app.route('/homeestabelecimento')

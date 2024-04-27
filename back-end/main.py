@@ -184,7 +184,7 @@ def atualizarusuario(id):
     else:
         return jsonify({'message': 'Usuario nao encontrado!'}), 200
 
-@app.route('/infusuario')
+@app.route('/infusuario', methods=['GET'])
 @login_required
 def infusuario():
     usuario = load_user(current_user.id)

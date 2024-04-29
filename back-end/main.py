@@ -127,7 +127,7 @@ def cadastrarUsuario():
     tipo = data['tipoUsuario']
     estabelecimento_id = current_user.id
 
-    Usuario.create(nome = nome, usuario = usuario, senha = senha ,tipo = tipo ,estabelecimento_id =  estabelecimento_id)
+    Usuario.create(nome = nome, usuario = usuario, senha = senha ,tipo = tipo, role = tipo, estabelecimento_id =  estabelecimento_id)
     return jsonify({'message': 'Usuario cadastrado com sucesso'}), 200
 
 @app.route('/cadastro', methods=['GET'])
@@ -191,7 +191,7 @@ def atualizarusuario(id):
 def infusuario():
     usuario = load_user(current_user.id)
     nome = usuario.nome
-    tipo = usuario.role
+    tipo = usuario.tipo
     return jsonify({'nome': nome,'tipo':tipo}), 200
 
 

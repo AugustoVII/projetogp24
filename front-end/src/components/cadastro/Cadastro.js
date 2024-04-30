@@ -78,7 +78,7 @@ function Cadastro() {
                         <input
                             type="text"
                             className={styles.input}
-                            placeholder="Digite seu nome"
+                            placeholder="Digite o nome"
                             value={nome}
                             onChange={e => setNome(e.target.value)}
                             required
@@ -87,7 +87,7 @@ function Cadastro() {
                         <input
                             type="password"
                             className={styles.input}
-                            placeholder="Digite sua senha"
+                            placeholder="Digite a senha"
                             value={senha}
                             onChange={e => setSenha(e.target.value)}
                             required
@@ -98,7 +98,7 @@ function Cadastro() {
                         <input
                             type="text"
                             className={styles.input}
-                            placeholder="Digite seu usuário"
+                            placeholder="Digite o usuário"
                             value={usuario}
                             onChange={e => setUsuario(e.target.value)}
                             required
@@ -107,7 +107,7 @@ function Cadastro() {
                         <input
                             type="password"
                             className={styles.input}
-                            placeholder="Confirme sua senha"
+                            placeholder="Confirme a senha"
                             value={senha2}
                             onChange={e => setSenha2(e.target.value)}
                             required
@@ -115,7 +115,7 @@ function Cadastro() {
                     </div>
                 </div>
                 <div className="type">
-                    <p>Eu sou:</p>
+                    <p>Tipo do funcionario:</p>
                 </div>
                 <label className={styles.labelgroup}>
                     <input
@@ -143,6 +143,15 @@ function Cadastro() {
                         onChange={() => trocaUsuario('caixa')}
                     />
                     Caixa
+                </label>
+                <label className={styles.labelgroup}>
+                    <input
+                        className={styles.checkboxgroup}
+                        type="checkbox"
+                        checked={tipoUsuario === 'cozinheiro'}
+                        onChange={() => trocaUsuario('cozinheiro')}
+                    />
+                    Cozinheiro
                 </label>
                 <div>
                     <p>{mensagem}</p>

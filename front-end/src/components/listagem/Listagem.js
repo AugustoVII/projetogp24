@@ -35,7 +35,7 @@ function Listagem() {
   };
   
   return (
-    <div>
+    <div className={styles.Main}>
       <div className={styles.div}>
         <h1>Listagem de funcionários</h1>
         <div className={styles.tablediv}>

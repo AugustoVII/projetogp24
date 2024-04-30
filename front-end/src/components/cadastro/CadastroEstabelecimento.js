@@ -92,6 +92,7 @@ function CadastroEstabelecimento(){
             setEmail('');
             setConfirmarEmail('');
             window.location.href = '/login';
+            window.location.reload();
         } else {
             setMensagem('Erro ao cadastrar usuário. Tente novamente.');
         }

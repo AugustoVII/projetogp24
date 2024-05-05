@@ -352,7 +352,6 @@ def calcularmesa():
 
 @app.route('/mesas', methods=['GET'])
 @login_required
-@garcom_required
 def obterStatusMesas():
     usuario = load_user(current_user.id)
     if usuario.role == "estabelecimento":

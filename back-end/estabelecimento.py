@@ -75,6 +75,7 @@ def obterListaProdutos(idEstab):
             produto_data = {
                     'id' : produto.id,
                     'nome' : produto.nome,
+                    'valor': produto.valor,
                     'categoria' : produto.categoria
                     }
             listaProdutos.append(produto_data)

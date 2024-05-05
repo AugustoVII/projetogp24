@@ -113,6 +113,8 @@ def cadastrar_estabelecimento():
     conf_email = data['confirmarEmail']
     if email == conf_email:
         Estabelecimento.create(nome = nome, cnpj = cnpj, senha = senha, cidade = cidade, bairro = bairro, rua = rua, numero = numero, email = email)
+        criarMesas(cnpj)
+
         return jsonify({'message': 'Estabelecimento cadastrado com sucesso'}), 200
 
 # cadastro funcionario
@@ -191,7 +193,7 @@ def atualizarusuario(id):
 def infusuario():
     usuario = load_user(current_user.id)
     nome = usuario.nome
-    tipo = usuario.tipo
+    tipo = usuario.role
     return jsonify({'nome': nome,'tipo':tipo}), 200
 
 
@@ -229,32 +231,43 @@ def homecaixa():
         return "nao é caixa"
 
 
-@app.route('/adicionarcategoria', methods=['POST'])
-def adicionarcategoria():
-    data = request.get_json()
-    nome = data['nome']
-    try:
-        x = Categoria.get(nome = nome)
-        return jsonify({'message': 'Ja existe categoria com esse nome'}), 200
-    except Categoria.DoesNotExist:
-            Categoria.create(nome = nome)
-            return jsonify({'message': 'Categoria adicionada com sucesso'}), 200
-
-
-@app.route('/adicionarproduto', methods=['POST'])
+@app.route('/produto', methods=['POST'])
+@login_required
+@estabelecimento_or_gerente_required
 def adicionarproduto():
+    usuario = load_user(current_user.id)
     data = request.get_json()
     nome = data['nome']
     categoria = data['categoria']
     valor = str_to_numeric(data['valor'])
-    try:
-        categoriaaux = Categoria.get(nome = categoria)
-        Produto.create(nome = nome, categoria = categoriaaux, valor = valor)
+    if usuario.role == "gerente": #gerente logado
+        try:
+            Produto.create(nome = nome, categoria = categoria, valor = valor, estabelecimento_id = usuario.estabelecimento_id)
+            return jsonify({'message': 'Produto adicionado com sucesso'}), 200
+        except:
+            return jsonify({'message': f"A inserção violou alguma chave"}), 400
 
-        return jsonify({'message': 'Produto adicionado com sucesso'}), 200
-    except IntegrityError as e:
-        mensagem = extrairErro(e)
-        return jsonify({'message': f"A inserção violou alguma chave: {mensagem}"}), 200
+    if usuario.role == "estabelecimento": # estabelecimento logado
+        try:
+            Produto.create(nome = nome, categoria = categoria, valor = valor, estabelecimento_id = usuario.id)
+            return jsonify({'message': 'Produto adicionado com sucesso'}), 200
+        except:
+            return jsonify({'message': f"A inserção violou alguma chave"}), 400
+
+
+@app.route('/produto', methods=['GET'])
+@login_required
+def obterProdutos():
+    usuario = load_user(current_user.id)
+    if usuario.role == "estabelecimento":
+        produtos = obterListaProdutos(usuario.id)
+        return produtos
+    else:
+        produtos = obterListaProdutos(usuario.estabelecimento_id)
+        return produtos
+
+
+
 
 
 
@@ -335,6 +348,20 @@ def calcularmesa():
             return jsonify({'message': f'total mesa = {total}'}), 404
     except Mesa.DoesNotExist as e:
         return jsonify({'message': f"Mesa nao encontrada"}), 200
+
+
+@app.route('/mesas', methods=['GET'])
+@login_required
+@garcom_required
+def obterStatusMesas():
+    usuario = load_user(current_user.id)
+    if usuario.role == "estabelecimento":
+        lista = obterListaMesas(usuario.id)
+        return lista
+    else:
+        lista = obterListaMesas(usuario.estabelecimento_id)
+        return lista
+
 
 
 

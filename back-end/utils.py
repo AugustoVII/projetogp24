@@ -13,6 +13,14 @@ def estabelecimento_required(func):
         return func(*args, **kwargs)
     return decorated_function
 
+def estabelecimento_or_gerente_required(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != Role.ESTABELECIMENTO or current_user.role != Role.GERENTE:
+            abort(403)  # Forbidden
+        return func(*args, **kwargs)
+    return decorated_function
+
 def caixa_required(func):
     @wraps(func)
     def decorated_function(*args, **kwargs):

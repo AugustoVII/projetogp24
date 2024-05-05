@@ -43,7 +43,51 @@ def excluirFuncionario(id):
             return False  # Usuário não encontrado
     except Usuario.DoesNotExist:
         return False  # Usuário não encontrado
+
+def criarMesas(cnpj):
+    try: 
+        x = Estabelecimento.get(cnpj=cnpj)
+        for i in range(1,101):
+            Mesa.create(numero = i, status = "livre", estabelecimento_id = x.id)
+    except Estabelecimento.DoesNotExist :
+        return 'estabelecimento não encontrado'
     
+def obterListaMesas(idEstabelecimento):
+    try:
+        mesas = Mesa.select().where(Mesa.estabelecimento_id == idEstabelecimento).order_by(Mesa.numero.asc())
+        lista_mesas = []
+        for mesa in mesas:
+            mesa_data = {
+                'id' : mesa.id,
+                'numero' : mesa.numero,
+                'status' : mesa.status
+            }
+            lista_mesas.append(mesa_data)
+        return {'mesas': lista_mesas}
+    except :
+        return 'estabelecimento não encontrado'
+
+def obterListaProdutos(idEstab):
+    try:
+        produtos = Produto.select().where(Produto.estabelecimento_id == idEstab).order_by(Produto.nome.asc())
+        listaProdutos = []
+        for produto in produtos:
+            produto_data = {
+                    'id' : produto.id,
+                    'nome' : produto.nome,
+                    'categoria' : produto.categoria
+                    }
+            listaProdutos.append(produto_data)
+        return {'produtos': listaProdutos}
+    except:
+        return "ocorreu algum erro ao processar"
+
+    
+        
+
+
+
+
 
 def atualizarFuncionario(id, nome, username,senha, tipo):
     try:

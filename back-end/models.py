@@ -54,6 +54,7 @@ class Estabelecimento(BaseModel, UserMixin):
     def __repr__(self):
         return f"Estabelecimento: {self}"
 
+
 class Usuario(BaseModel, UserMixin):
     id = UUIDField(primary_key=True, default=uuid.uuid4)
     nome = CharField(max_length=100)
@@ -85,7 +86,7 @@ class Usuario(BaseModel, UserMixin):
 # Inicialize o banco de dados e crie tabelas
 def create_tables():
     with database:
-        database.create_tables([Estabelecimento, Usuario, Categoria, Produto, Mesa, Pedido, PedidoProduto])
+        database.create_tables([Estabelecimento, Usuario, Produto, Mesa, Pedido, PedidoProduto])
 
 # Funções de formatação
 def format_usuario(usuario):
@@ -111,21 +112,20 @@ def formatar_cnpj(cnpj):
     return cnpj_formatado
 
 
-# Classe para Categoria
-class Categoria(BaseModel):
-    nome = CharField(unique=True)
-    
+ 
 
 # Classe para Produto
 class Produto(BaseModel):
     nome = CharField(unique = True)
     valor = DecimalField(max_digits=10, decimal_places=2)
-    categoria = ForeignKeyField(Categoria, backref='produtos')  # Relacionamento com Categoria
+    categoria = CharField(max_length=50)
+    estabelecimento_id = ForeignKeyField(Estabelecimento, backref='produtos')  # Relacionamento com Categoria
 
 # Classe para Mesa
 class Mesa(BaseModel):
-    numero = IntegerField(unique=True)
+    numero = IntegerField()
     status = CharField(choices=['livre', 'ocupada', 'fechada'])
+    estabelecimento_id = ForeignKeyField(Estabelecimento, backref='mesas')
 
     def listar_pedidos(self):
         # Retornar todos os pedidos associados a esta mesa
@@ -135,6 +135,8 @@ class Mesa(BaseModel):
 class Pedido(BaseModel):
     mesa = ForeignKeyField(Mesa, backref='pedidos')  # Relacionamento com Mesa
     status = CharField(choices=['preparando', 'entregue', "pago"])
+    estabelecimento_id = ForeignKeyField(Estabelecimento, backref='pedidos')
+
 
     def adicionar_produto(self, produto, quantidade=1):
         # Criar uma nova entrada na tabela PedidoProduto

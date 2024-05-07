@@ -270,8 +270,6 @@ def obterProdutos():
         return produtos
 
 
-
-
 @app.route('/pedido', methods=['POST'])
 @login_required
 @garcom_required
@@ -300,6 +298,41 @@ def adicionarpedido():
         produto = Produto.get(nome = prato)
         pedido.adicionar_produto(produto = produto, quantidade = quantidade)
     return jsonify({'message': 'Pedido adicionado com sucesso!'}), 200        
+
+@app.route('/pedido', methods=['GET'])
+@login_required
+@garcom_required
+def obterPedidos():
+    usuario = load_user(current_user.id)
+    if usuario.role == "estabelecimento":
+        idEst = usuario.id
+    else:
+        idEst = usuario.estabelecimento_id
+        consulta = (PedidoProduto
+            .select(PedidoProduto, Pedido, Produto, Mesa)
+            .where((Pedido.estabelecimento_id == idEst) & (Pedido.status == "preparando"))
+            .join(Pedido, JOIN.INNER, on=(Pedido.id == PedidoProduto.pedido))
+            .join(Produto, JOIN.INNER, on=(PedidoProduto.produto == Produto.id))
+            .join(Mesa, JOIN.INNER, on=(Pedido.mesa_id == Mesa.id))).order_by(Pedido.id.asc())
+
+    resultados = consulta.execute()    
+    listaPedido = []
+    for pedido in resultados:
+        pedido_data = {
+            "mesa" : pedido.pedido.mesa.numero,
+            "quantidade": pedido.quantidade,
+            "prato": pedido.produto.nome,
+            "pedido": pedido.pedido.id
+
+
+        }
+        listaPedido.append(pedido_data)
+    return listaPedido
+
+
+    
+
+
 
 
 @app.route('/abrirmesaespecifica', methods=['POST'])

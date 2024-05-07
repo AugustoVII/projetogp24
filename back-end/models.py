@@ -138,7 +138,7 @@ class Pedido(BaseModel):
     estabelecimento_id = ForeignKeyField(Estabelecimento, backref='pedidos')
 
 
-    def adicionar_produto(self, produto, quantidade=1):
+    def adicionar_produto(self, produto, quantidade):
         # Criar uma nova entrada na tabela PedidoProduto
         PedidoProduto.create(pedido=self, produto=produto, quantidade=quantidade)
 

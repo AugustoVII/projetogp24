@@ -116,6 +116,9 @@ def cadastrar_estabelecimento():
         criarMesas(cnpj)
 
         return jsonify({'message': 'Estabelecimento cadastrado com sucesso'}), 200
+    else:
+        return jsonify({'error': 'E-mails não coincidem'}), 400
+
 
 # cadastro funcionario
 @app.route('/cadastrarusuario', methods=['POST'])
@@ -170,7 +173,7 @@ def excluir_usuario(id):
     if x :
         return jsonify({'message': 'Usuario excluido com sucesso'}), 200
     else:
-        return jsonify({'message': 'Usuario nao encontrado, ou ja se encontra excluido'}), 200
+        return jsonify({'message': 'Usuario nao encontrado, ou ja se encontra excluido'}), 400
 
 # atualizar usuario com base no id
 @app.route('/atualizarusuario/<id>', methods=['POST'])
@@ -186,7 +189,7 @@ def atualizarusuario(id):
     if x :
         return jsonify({'message': 'Usuario atualizado com sucesso!'}), 200
     else:
-        return jsonify({'message': 'Usuario nao encontrado!'}), 200
+        return jsonify({'message': 'Usuario nao encontrado!'}), 400
 
 @app.route('/infusuario', methods=['GET'])
 @login_required
@@ -269,32 +272,34 @@ def obterProdutos():
 
 
 
-
-
-@app.route('/adicionarpedido', methods=['POST'])
+@app.route('/pedido', methods=['POST'])
+@login_required
+@garcom_required
 def adicionarpedido():
-    data = request.get_json()
-    mesa_id = data['mesa_id']
-    produtos = data['produtos']
-    
-    mesa = Mesa.get(id = mesa_id)
-    if not mesa:
-        return jsonify({'message': 'Mesa não encontrada.'}), 404
-    
-    if mesa.status == "ocupada":
-
-        pedido = Pedido(status = 'preparando', mesa = mesa)
-        pedido.save()
-
-        for produto_inf in produtos:
-            produto_id = produto_inf['id']
-            quantidade = produto_inf['quantidade']
-            produto = Produto.get_or_none(id = produto_id)
-            pedido.adicionar_produto(produto = produto, quantidade = quantidade)
-        
-        return jsonify({'message': 'Pedido adicionado com sucesso!'}), 200
+    usuario = load_user(current_user.id)
+    if usuario.role == "estabelecimento":
+        idEst = usuario.id
     else:
-        return jsonify({'message': 'Mesa se encontra fechada, solicite abertura!'}), 200
+        idEst = usuario.estabelecimento_id
+
+    data = request.get_json()
+    
+    pedidos = data['pedidos']
+    mesa_id = data['pedidos'][0]['mesaId']
+    try:
+        mesa = Mesa.get(id = mesa_id)
+        if mesa.status == "ocupada":
+            pedido = Pedido(status = 'preparando', mesa = mesa, estabelecimento_id = idEst )
+            pedido.save()
+    except:
+        return jsonify({'message': 'Mesa se encontra fechada, solicite abertura!'}), 400
+        
+    for lista in pedidos:
+        prato = lista['prato']
+        quantidade = lista['quantidade']
+        produto = Produto.get(nome = prato)
+        pedido.adicionar_produto(produto = produto, quantidade = quantidade)
+    return jsonify({'message': 'Pedido adicionado com sucesso!'}), 200        
 
 
 @app.route('/abrirmesaespecifica', methods=['POST'])
@@ -306,7 +311,7 @@ def abrirmesaespecifica():
         return jsonify({'message': 'Mesa aberta com sucesso'}), 200
     except IntegrityError as e:
         mensagem = extrairErro(e)
-        return jsonify({'message': f"A inserção violou alguma chave: {mensagem}"}), 200
+        return jsonify({'message': f"A inserção violou alguma chave: {mensagem}"}), 400
 
 @app.route('/abrirmesa', methods=['POST'])
 def abrirmesa():
@@ -319,7 +324,7 @@ def abrirmesa():
         return jsonify({'message': 'Mesa aberta com sucesso'}), 200
     except IntegrityError as e:
         mensagem = extrairErro(e)
-        return jsonify({'message': f"A inserção violou alguma chave: {mensagem}"}), 200
+        return jsonify({'message': f"A inserção violou alguma chave: {mensagem}"}), 400
 
 
 
@@ -333,7 +338,7 @@ def fecharmesa():
         mesa.save()
         return jsonify({'message': 'Mesa fechada com sucesso'}), 200
     except Mesa.DoesNotExist as e:
-        return jsonify({'message': f"Mesa nao encontrada"}), 200
+        return jsonify({'message': f"Mesa nao encontrada"}), 400
 
 @app.route('/calcularmesa', methods=['POST'])
 def calcularmesa():
@@ -342,12 +347,12 @@ def calcularmesa():
     try: 
         mesa = Mesa.get(numero = num)
         if mesa.status == "aberta" or mesa.status == "livre":
-            return jsonify({'message': 'Mesa se encontra aberta, é necessario fechar para somar'}), 404
+            return jsonify({'message': 'Mesa se encontra aberta, é necessario fechar para somar'}), 400
         else:
             total = calcularConta(mesa.id)
-            return jsonify({'message': f'total mesa = {total}'}), 404
+            return jsonify({'message': f'total mesa = {total}'}), 200
     except Mesa.DoesNotExist as e:
-        return jsonify({'message': f"Mesa nao encontrada"}), 200
+        return jsonify({'message': f"Mesa nao encontrada"}), 400
 
 
 @app.route('/mesas', methods=['GET'])
@@ -356,10 +361,10 @@ def obterStatusMesas():
     usuario = load_user(current_user.id)
     if usuario.role == "estabelecimento":
         lista = obterListaMesas(usuario.id)
-        return lista
+        return lista 
     else:
         lista = obterListaMesas(usuario.estabelecimento_id)
-        return lista
+        return lista 
 
 
 

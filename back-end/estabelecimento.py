@@ -50,7 +50,7 @@ def criarMesas(cnpj):
         for i in range(1,101):
             Mesa.create(numero = i, status = "livre", estabelecimento_id = x.id)
     except Estabelecimento.DoesNotExist :
-        return 'estabelecimento não encontrado'
+        return 'estabelecimento não encontrado' 
     
 def obterListaMesas(idEstabelecimento):
     try:

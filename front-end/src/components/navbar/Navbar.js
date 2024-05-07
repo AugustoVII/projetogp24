@@ -83,9 +83,9 @@ function Navbar() {
           <li>
           <li className={styles.subitem}><LuBoxes /> Estoque</li>
             <ul className={styles.submenu}>
-              <button className={styles.Button} onClick={() => handleSubitemClick('/visualizar-estoque')}><MdOutlineProductionQuantityLimits /> Lançar produtos</button>
+              <button className={styles.Button} onClick={() => handleSubitemClick('/addproduto')}><MdOutlineProductionQuantityLimits /> Lançar produtos</button>
               <button className={styles.Button} onClick={() => handleSubitemClick('/adicionar-produtos')}><LuBoxes /> Visualizar estoque</button>
-              <button className={styles.Button} onClick={() => handleSubitemClick('/adicionar-produtos')}><LuBoxes /> Atualizar estoque</button>
+              <button className={styles.Button} onClick={() => handleSubitemClick('/asdasd')}><LuBoxes /> Atualizar estoque</button>
             </ul>
           </li>
           </>

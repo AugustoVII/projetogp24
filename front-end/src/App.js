@@ -7,6 +7,7 @@ import Login from './components/login/Login';
 import listausuarios from './components/listagem/Listagem'
 import Navbar from './components/navbar/Navbar'
 import Logout from './components/logout/Logout'
+import AddProd from './components/gerente/AddProd'
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/cadastro" component={Cadastro} />
           <Route path="/login" component={Login} />
           <Route path="/listausuarios" component={listausuarios} />
+          <Route path="/addproduto" component={AddProd} />
         </Switch>
     </Router>
     </div>

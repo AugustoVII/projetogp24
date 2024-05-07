@@ -116,13 +116,16 @@ def formatar_cnpj(cnpj):
 
 # Classe para Produto
 class Produto(BaseModel):
-    nome = CharField(unique = True)
+    id = PrimaryKeyField(primary_key=True)
+    nome = CharField(max_length=100)
     valor = DecimalField(max_digits=10, decimal_places=2)
     categoria = CharField(max_length=50)
     estabelecimento_id = ForeignKeyField(Estabelecimento, backref='produtos')  # Relacionamento com Categoria
 
+
 # Classe para Mesa
 class Mesa(BaseModel):
+    id = PrimaryKeyField(primary_key=True)
     numero = IntegerField()
     status = CharField(choices=['livre', 'ocupada', 'fechada'])
     estabelecimento_id = ForeignKeyField(Estabelecimento, backref='mesas')
@@ -133,6 +136,7 @@ class Mesa(BaseModel):
     
 # Classe para Pedido
 class Pedido(BaseModel):
+    id = PrimaryKeyField(primary_key=True)
     mesa = ForeignKeyField(Mesa, backref='pedidos')  # Relacionamento com Mesa
     status = CharField(choices=['preparando', 'entregue', "pago"])
     estabelecimento_id = ForeignKeyField(Estabelecimento, backref='pedidos')
@@ -162,6 +166,7 @@ def proximo_numero_pedido():
 
 # Classe para os produtos em um Pedido (Muitos-para-Muitos)
 class PedidoProduto(BaseModel):
+    id = PrimaryKeyField(primary_key=True)
     pedido = ForeignKeyField(Pedido, backref='itens_pedido')
     produto = ForeignKeyField(Produto)
     quantidade = IntegerField(default=1)

@@ -234,40 +234,36 @@ def homecaixa():
         return "nao é caixa"
 
 
+def obterIdEst(usuario):
+    if usuario.role == "estabelecimento":
+        return usuario.id
+    else:
+        return usuario.estabelecimento_id
+
+
 @app.route('/produto', methods=['POST'])
 @login_required
-@estabelecimento_or_gerente_required
-def adicionarproduto():
-    usuario = load_user(current_user.id)
+@gerente_required
+def AddProd():
+    idEst = obterIdEst(load_user(current_user.id))
+    
     data = request.get_json()
     nome = data['nome']
     categoria = data['categoria']
     valor = str_to_numeric(data['valor'])
-    if usuario.role == "gerente": #gerente logado
-        try:
-            Produto.create(nome = nome, categoria = categoria, valor = valor, estabelecimento_id = usuario.estabelecimento_id)
-            return jsonify({'message': 'Produto adicionado com sucesso'}), 200
-        except:
-            return jsonify({'message': f"A inserção violou alguma chave"}), 400
-
-    if usuario.role == "estabelecimento": # estabelecimento logado
-        try:
-            Produto.create(nome = nome, categoria = categoria, valor = valor, estabelecimento_id = usuario.id)
-            return jsonify({'message': 'Produto adicionado com sucesso'}), 200
-        except:
-            return jsonify({'message': f"A inserção violou alguma chave"}), 400
-
+    try:
+        Produto.create(nome = nome, categoria = categoria, valor = valor, estabelecimento_id = idEst)
+        return jsonify({'message': 'Produto adicionado com sucesso'}), 200
+    except:
+        return jsonify({'message': 'erro ao inserir'}), 400
 
 @app.route('/produto', methods=['GET'])
 @login_required
 def obterProdutos():
-    usuario = load_user(current_user.id)
-    if usuario.role == "estabelecimento":
-        produtos = obterListaProdutos(usuario.id)
-        return produtos
-    else:
-        produtos = obterListaProdutos(usuario.estabelecimento_id)
-        return produtos
+    idEst =obterIdEst(load_user(current_user.id))
+    produtos = obterListaProdutos(idEst)
+    return produtos
+
 
 
 @app.route('/pedido', methods=['POST'])

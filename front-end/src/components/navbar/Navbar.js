@@ -57,7 +57,7 @@ function Navbar() {
 
         {tipoUsuario === 'garcom' && (
           <li>
-            <button className={styles.Button} onClick={() => handleSubitemClick('/visualizar-mesas')}><MdTableBar /> Abrir mesa</button>
+            <button className={styles.Button} onClick={() => handleSubitemClick('/abrirmesas')}><MdTableBar /> Abrir mesa</button>
             <button className={styles.Button} onClick={() => handleSubitemClick('/alterar-pedidos')}><MdOutlineProductionQuantityLimits /> Lançar produtos</button>
           </li>
         )}
@@ -74,7 +74,7 @@ function Navbar() {
             <li>
             <li className={styles.subitem}><MdTableBar /> Mesas</li>
             <ul className={styles.submenu}>
-              <button className={styles.Button} onClick={() => handleSubitemClick('/visualizar-estoque')}><MdTableBar /> Abrir mesa</button>
+              <button className={styles.Button} onClick={() => handleSubitemClick('/abrirmesas')}><MdTableBar /> Abrir mesa</button>
               <button className={styles.Button} onClick={() => handleSubitemClick('/adicionar-produtos')}><MdTableBar /> Fechar mesa</button>
               <button className={styles.Button} onClick={() => handleSubitemClick('/visualizar-mesas')}><MdTableBar /> Visualizar mesas</button>
               <button className={styles.Button} onClick={() => handleSubitemClick('/adicionar-produtos')}><MdDiscount /> Adicionar desconto</button>

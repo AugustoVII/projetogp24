@@ -173,3 +173,34 @@ body{
     box-shadow: 0px 5px 4px rgba(0, 0, 0, 0.2);
     font-size: 14px;
 }
+.colun{
+    width: 100%;
+    
+}
+.table{
+    width: 100%;
+}
+.tablediv{
+    max-height: 250px; 
+    overflow-y: auto;
+    width: 100%;
+
+    background: linear-gradient(to left, #e0e0e08a, #ffffff8a); 
+    border: 3px solid #847663;
+    box-shadow: 5px 10px 4px rgba(0, 0, 0, 0.2);
+  
+}
+
+.titlecolun {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    border: 1px solid #847663;
+}
+
+.buttonGroup{
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}

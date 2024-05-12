@@ -57,6 +57,7 @@ function Mesas() {
   e.preventDefault();
   if (pratoSelecionado && quantidade && selectedMesa) {
     const novoPedido = {
+      id: Date.now(),
       mesaId: selectedMesa.id,
       prato: pratoSelecionado,
       quantidade: quantidade
@@ -71,6 +72,11 @@ function Mesas() {
       alert("Por favor, insira a quantidade.");
     }
   }
+};
+
+const handleExcluirPedido = (pedidoId) => {
+  const novosPedidos = pedidos.filter(pedido => pedido.id !== pedidoId);
+  setPedidos(novosPedidos);
 };
 
 const handleEnviarPedidos = async (e) => {
@@ -124,26 +130,55 @@ const handleEnviarPedidos = async (e) => {
           <div className={styles.modalContent}>
             <span className={styles.close} onClick={() => setModalOpen(false)}>&times;</span>
             <h2>Adicionar Pedido à Mesa {selectedMesa.numero}</h2>
+            {pedidos.length > 0 && (
+  <>
+    <h3>Pedidos:</h3>
+    <div className={styles.tablediv}>
+      <table className={styles.table}>
+        <thead className={styles.colun}>
+          <tr>
+            <th className={styles.titlecolun}>Prato</th>
+            <th className={styles.titlecolun}>Quantidade</th>
+            <th className={styles.titlecolun}>Excluir</th>
+          </tr>
+        </thead>
+        <tbody className={styles.tbody}>
+          {pedidos.map((pedido) => (
+            <tr key={pedido.id}>
+              <td>{pedido.prato}</td>
+              <td>{pedido.quantidade}</td>
+              <td>
+                <button className={styles.buttonGroup} onClick={() => handleExcluirPedido(pedido.id)}>
+                  Excluir
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </>
+)}
             <form className={styles.form} >
               <div className={styles.inputcontainer}>
                 <div className={styles.inputgroup}>
                   <p className={styles.namegroup}>Quantidade:</p>
                   <input type="number"
-                    className={styles.input} 
-                    placeholder="Digite a quantidade" 
-                    value={quantidade} 
+                    className={styles.input}
+                    placeholder="Digite a quantidade"
+                    value={quantidade}
                     onChange={(e) => {
-                    const inputQuantidade = parseInt(e.target.value);
-                    if (!isNaN(inputQuantidade) && inputQuantidade >= 0) {
-                      setQuantidade(inputQuantidade);
+                      const inputQuantidade = parseInt(e.target.value);
+                      if (!isNaN(inputQuantidade) && inputQuantidade >= 0) {
+                        setQuantidade(inputQuantidade);
                       }
-                      }}
-                  required
+                    }}
+                    required
                   />
                 </div>
                 <div className={styles.inputgroup}>
                   <p className={styles.namegroup}>Pedido:</p>
-                  <select className ={styles.inputlist} value={pratoSelecionado} onChange={mudaPrato}>
+                  <select className={styles.inputlist} value={pratoSelecionado} onChange={mudaPrato}>
                     <option value="">Selecione um prato</option>
                     {pratos.map((prato, index) => (
                       <option key={index} value={prato}>{prato}</option>
@@ -157,6 +192,8 @@ const handleEnviarPedidos = async (e) => {
               )}
               <button className={styles.bottomgroup} onClick={handleAddPedido}>Adicionar </button>
             </form>
+            <div>
+            </div>
           </div>
         </div>
       )}
@@ -165,3 +202,4 @@ const handleEnviarPedidos = async (e) => {
 }
 
 export default Mesas;
+

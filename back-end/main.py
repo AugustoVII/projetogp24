@@ -282,9 +282,10 @@ def adicionarpedido():
     mesa_id = data['pedidos'][0]['mesaId']
     try:
         mesa = Mesa.get(id = mesa_id)
-        if mesa.status == "ocupada":
-            pedido = Pedido(status = 'preparando', mesa = mesa, estabelecimento_id = idEst )
-            pedido.save()
+        mesa.status = ("ocupada")
+        mesa.save()
+        pedido = Pedido(status = 'preparando', mesa = mesa, estabelecimento_id = idEst )
+        pedido.save()
     except:
         return jsonify({'message': 'Mesa se encontra fechada, solicite abertura!'}), 400
         
@@ -311,7 +312,8 @@ def obterPedidos():
             "mesa" : pedido.pedido.mesa.numero,
             "quantidade": pedido.quantidade,
             "prato": pedido.produto.nome,
-            "pedido": pedido.pedido.id
+            "pedido": pedido.pedido.id,
+            "status": pedido.pedido.status
         }
         listaPedido.append(pedido_data)
     return listaPedido

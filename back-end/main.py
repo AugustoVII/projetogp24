@@ -311,7 +311,9 @@ def obterPedidos():
             "mesa" : pedido.pedido.mesa.numero,
             "quantidade": pedido.quantidade,
             "prato": pedido.produto.nome,
-            "pedido": pedido.pedido.id
+            "pedido": pedido.pedido.id,
+            "idpedidoproduto" : pedido.id
+  
             # "status": pedido.pedidoproduto.status
         }
         listaPedido.append(pedido_data)
@@ -329,11 +331,20 @@ def marcarPedidoConcluido():
 
     data = request.get_json()
     idPedido = data['pedidoId']
+    idpedidoproduto = data['idpedidoproduto']
 
-    pedido = PedidoProduto.get(pedido_id = idPedido)
-    if pedido:
-        pedido.status = "entregue"
-        pedido.save()
+    consulta = (PedidoProduto
+                .select(PedidoProduto)
+                .join(Pedido, JOIN.INNER, on=(Pedido.id == PedidoProduto.pedido))
+                .join(Produto, JOIN.INNER, on=(PedidoProduto.produto == Produto.id))
+                .where((PedidoProduto.pedido == idPedido) & (PedidoProduto.id == idpedidoproduto))
+                .order_by(Pedido.id.asc())
+                .first())    
+    if consulta:
+        id_pedido_produto = consulta.id
+        produto = PedidoProduto.get(id = id_pedido_produto)
+        produto.status = "entregue"
+        produto.save()
         return jsonify({'message': 'Pedido marcado com sucesso!'}), 200     
     else:
         return jsonify({'message': 'Pedido nao encontrado !'}), 400    

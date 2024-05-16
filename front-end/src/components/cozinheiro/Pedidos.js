@@ -18,7 +18,7 @@ function Pedidos() {
     };
 
     // Função para buscar pedidos a cada 5 segundos
-    const interval = setInterval(fetchPedidos, 3000); // Consulta a cada 5 segundos (ajuste conforme necessário)
+    const interval = setInterval(fetchPedidos, 3000); // Consulta a cada 3 segundos (ajuste conforme necessário)
 
     // Limpa o intervalo quando o componente é desmontado
     return () => clearInterval(interval);
@@ -30,7 +30,9 @@ function Pedidos() {
   
       // Envie o pedido marcado como concluído
       const formData = {
-        pedidoId: pedido, // Envie apenas o ID do pedido
+        pedidoId: pedido.pedido, // Envie o ID do pedido
+        nome: pedido.prato, // Envie o nome do pedido
+        idpedidoproduto: pedido.idpedidoproduto // Envie o ID do pedidoproduto
       };
   
       axios.post('/marcarpedido', formData)
@@ -58,7 +60,7 @@ function Pedidos() {
         {pedidos.map((pedido, index) => (
           <li key={index} className={styles.liMesa}>
             <span className={styles.numeroMesa}>Mesa {pedido.mesa} pedido {pedido.pedido}</span>
-            <div className={styles.tablediv} onClick={() => handlePedidoClick(pedido.pedido)}>
+            <div className={styles.tablediv} onClick={() => handlePedidoClick(pedido)}>
               <table className={styles.table}>
                 <thead className={styles.colun}>
                   <tr>

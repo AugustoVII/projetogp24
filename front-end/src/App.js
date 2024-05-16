@@ -10,6 +10,7 @@ import Logout from './components/logout/Logout'
 import AddProd from './components/gerente/AddProd'
 import Mesas from './components/garcom/Mesas'
 import Home from './components/home/Inicial'
+import Pedidos from './components/cozinheiro/Pedidos'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
       <Router>
       <Navbar />
         <Switch>
+        <Route path="/pedidos" component={Pedidos} />
           <Route path="/logout" component={Logout} />
           <Route exact path="/" component={CadastroEstabelecimento} />
           <Route path="/cadastrar" component={CadastroEstabelecimento} />

@@ -111,7 +111,7 @@ function Navbar() {
 
         {tipoUsuario === 'cozinheiro' && (
           <li>
-           <button className={styles.Button} onClick={() => handleSubitemClick('/visualizar-mesas')}>Visualizar pedidos</button>
+           <button className={styles.Button} onClick={() => handleSubitemClick('/pedidos')}>Visualizar pedidos</button>
           </li>
         )}
 

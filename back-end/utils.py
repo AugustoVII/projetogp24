@@ -45,3 +45,11 @@ def gerente_required(func):
         return func(*args, **kwargs)
     return decorated_function
 
+def cozinheiro_required(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role not in [Role.ESTABELECIMENTO, Role.GERENTE, Role.COZINHEIRO]:
+            abort(403)  # Forbidden
+        return func(*args, **kwargs)
+    return decorated_function
+

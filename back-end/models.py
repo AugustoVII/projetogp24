@@ -33,7 +33,7 @@ class Role:
     GERENTE = 'gerente'
     GARCOM = 'garcom'
     CAIXA = 'caixa'
-    COZINHA = 'cozinha'
+    COZINHEIRO = 'cozinheiro'
 
 class Estabelecimento(BaseModel, UserMixin):
     id = UUIDField(primary_key=True, default=uuid.uuid4)
@@ -74,8 +74,8 @@ class Usuario(BaseModel, UserMixin):
     def is_garcom(self):
         return self.role == Role.GARCOM
     
-    def is_cozinha(self):
-        return self.role == Role.COZINHA
+    def is_cozinheiro(self):
+        return self.role == Role.COZINHEIRO
 
     def __repr__(self):
         return f"Usuario: {self}"
@@ -138,13 +138,13 @@ class Mesa(BaseModel):
 class Pedido(BaseModel):
     id = PrimaryKeyField(primary_key=True)
     mesa = ForeignKeyField(Mesa, backref='pedidos')  # Relacionamento com Mesa
-    status = CharField(choices=['preparando', 'entregue', "pago"])
+    status = CharField(choices=['andamento', 'pago'])
     estabelecimento_id = ForeignKeyField(Estabelecimento, backref='pedidos')
 
 
-    def adicionar_produto(self, produto, quantidade):
+    def adicionar_produto(self, produto, quantidade, status):
         # Criar uma nova entrada na tabela PedidoProduto
-        PedidoProduto.create(pedido=self, produto=produto, quantidade=quantidade)
+        PedidoProduto.create(pedido=self, produto=produto, quantidade=quantidade, status = status)
 
     def remover_produto(self, produto):
         try:
@@ -170,6 +170,7 @@ class PedidoProduto(BaseModel):
     pedido = ForeignKeyField(Pedido, backref='itens_pedido')
     produto = ForeignKeyField(Produto)
     quantidade = IntegerField(default=1)
+    status = CharField(choices=['preparando', 'entregue'])
 
 
 

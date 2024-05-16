@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import styles from '../css/Mesas.module.css';
 import mesaImage from '../imagens/mesa.png';
+import axios from 'axios';
 
 function Mesas() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -12,14 +13,22 @@ function Mesas() {
   const [mesas,setMesas] = useState([]);
 
   useEffect(() => {
-    fetch('/mesas')
-      .then(response => response.json())
-      .then(data => {
-        setMesas(data.mesas);
-      })
-      .catch(error => {
-        console.error('Erro ao obter dados:', error);
-      });
+    const fetchMesas = async () => {
+      try {
+        const response = await axios.get('/mesas');
+        setMesas(response.data.mesas);
+      } catch (error) {
+        console.error('Erro ao buscar as mesas:', error);
+      }
+    };
+
+    // Função para buscar pedidos e mesas a cada 5 segundos
+    const interval = setInterval(() => {
+      fetchMesas();
+    }, 3000); // Consulta a cada 5 segundos (ajuste conforme necessário)
+
+    // Limpa o intervalo quando o componente é desmontado
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {

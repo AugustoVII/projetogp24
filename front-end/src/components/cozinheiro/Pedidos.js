@@ -17,24 +17,27 @@ function Pedidos() {
       }
     };
 
-    fetchPedidos();
+    // Função para buscar pedidos a cada 5 segundos
+    const interval = setInterval(fetchPedidos, 3000); // Consulta a cada 5 segundos (ajuste conforme necessário)
+
+    // Limpa o intervalo quando o componente é desmontado
+    return () => clearInterval(interval);
   }, []);
 
   const handlePedidoClick = (pedido) => {
     if (window.confirm('Confirmar pedido')) {
       setSelectedPedido(pedido);
-
+  
       // Envie o pedido marcado como concluído
       const formData = {
         pedidoId: pedido, // Envie apenas o ID do pedido
       };
-
+  
       axios.post('/marcarpedido', formData)
         .then(response => {
-          if (response.data.success) {
+          // Verifique o status da resposta para determinar se a requisição foi bem-sucedida
+          if (response.status === 200) { // Verifique o status 200 para sucesso
             setMensagem('Pedido marcado como concluído!');
-            // Atualize a lista de pedidos após o sucesso
-            setPedidos(prevPedidos => prevPedidos.filter(p => p.pedido !== pedido));
           } else {
             setMensagem('Erro ao marcar o pedido como concluído. Tente novamente.');
           }
@@ -45,6 +48,7 @@ function Pedidos() {
         });
     }
   };
+  
 
   return (
     <div className={styles.divPrinc}>

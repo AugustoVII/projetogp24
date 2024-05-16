@@ -6,14 +6,28 @@ from peewee import *
 import re
 
 
+# waiterweb
+# waiterwebuepb
 
+# servidor local
+# DATABASE = {
+#     'name': 'projetogp3',
+#     'user': 'postgres',
+#     'password': 'postgres',
+#     'host': 'localhost',  
+#     'port': 5432,          
+# }
+
+
+# servidor supabase
 DATABASE = {
-    'name': 'projetogp3',
-    'user': 'postgres',
-    'password': 'postgres',
-    'host': 'localhost',  # ou o endereço do seu servidor PostgreSQL
-    'port': 5432,          # a porta padrão do PostgreSQL é 5432
+    'name': 'postgres',
+    'user': 'postgres.dotabrjstpovpmavmqtx',
+    'password': 'waiterwebuepb',
+    'host': 'aws-0-sa-east-1.pooler.supabase.com',  
+    'port': 5432,          
 }
+
 
 database = PostgresqlDatabase(
     DATABASE['name'],

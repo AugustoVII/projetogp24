@@ -11,6 +11,8 @@ function Mesas() {
   const [pratoSelecionado, setPratoSelecionado] = useState('');
   const [pedidos, setPedidos] = useState([]);
   const [mesas,setMesas] = useState([]);
+  const [mensagem, setMensagem] = useState('');
+  const [mensagem2, setMensagem2] = useState('');
 
   useEffect(() => {
     const fetchMesas = async () => {
@@ -76,9 +78,9 @@ function Mesas() {
     setQuantidade('');
   } else {
     if (!pratoSelecionado) {
-      alert("Por favor, selecione um prato.");
+      setMensagem2("Por favor, selecione um prato.");
     } else if (!quantidade) {
-      alert("Por favor, insira a quantidade.");
+      setMensagem2("Por favor, insira a quantidade.");
     }
   }
 };
@@ -103,7 +105,7 @@ const handleEnviarPedidos = async (e) => {
       throw new Error('Erro ao enviar pedidos');
     }
     
-    alert("Pedidos enviados com sucesso.");
+    setMensagem("Pedidos enviados com sucesso.");
     setPedidos([]);
     setModalOpen(false);
   } catch (error) {
@@ -118,6 +120,7 @@ const handleEnviarPedidos = async (e) => {
   return (
     <div className={styles.divPrinc}>
       <h1>Mesas</h1>
+      <h2>{mensagem}</h2>
       <ul className={styles.listaMesas}>
         {mesas.map((mesa, index) => (
           <li key={index} className={styles.liMesa}>
@@ -195,6 +198,7 @@ const handleEnviarPedidos = async (e) => {
                   </select>
                 </div>
               </div>
+              <div>{mensagem2}</div>
               <button className={styles.bottomgroup} onClick={() => handleVoltar()}>Cancelar</button>
               {pedidos.length > 0 && (
                 <button className={styles.bottomgroup} onClick={handleEnviarPedidos}>Enviar</button>

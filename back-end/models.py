@@ -4,7 +4,10 @@ import uuid
 from decimal import Decimal
 from peewee import *
 import re
+from flask import Flask
 
+
+app = Flask(__name__)
 
 # waiterweb
 # waiterwebuepb

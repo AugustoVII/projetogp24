@@ -2,9 +2,13 @@ import { useState, useEffect } from 'react';
 import styles from '../css/Mesas.module.css';
 import mesaImage from '../imagens/mesa.png';
 import axios from 'axios';
+import engrenagem from '../imagens/engrenagem.png'
 
 function Mesas() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [modal2Open, setModal2Open] = useState(false);
+  const [quantMesa, setQuantMesa] = useState ('');
+  const [mensagem3, setMensagem3] = useState('');
   const [selectedMesa, setSelectedMesa] = useState(null);
   const [quantidade, setQuantidade] = useState('');
   const [pratos, setPratos] = useState([]);
@@ -13,6 +17,18 @@ function Mesas() {
   const [mesas,setMesas] = useState([]);
   const [mensagem, setMensagem] = useState('');
   const [mensagem2, setMensagem2] = useState('');
+  const [tipoUsuario, setTipoUsuario] = useState('');
+
+  useEffect(() => {
+    fetch('/infusuario')
+      .then(response => response.json())
+      .then(data => {
+        setTipoUsuario(data.tipo);
+      })
+      .catch(error => {
+        console.error('Erro ao obter dados:', error);
+      });
+  }, []); 
 
   useEffect(() => {
     const fetchMesas = async () => {
@@ -64,6 +80,7 @@ function Mesas() {
     setModalOpen(true);
   };
 
+
   const handleAddPedido = (e) => {
   e.preventDefault();
   if (pratoSelecionado && quantidade && selectedMesa) {
@@ -113,13 +130,80 @@ const handleEnviarPedidos = async (e) => {
   }
 };
 
+const handleConfirm = async (e) => {
+  e.preventDefault();
+  if (quantMesa < 0) {
+    setMensagem3('Insira uma quantidade valida.')
+    return
+  }
+  try {
+    const response = await fetch('/mudarQuantMesas', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(parseInt(quantMesa, 10))
+    });
+    
+    if (!response.ok) {
+      throw new Error('Erro ao alterar quantidade.');
+    }
+    
+    setMensagem3('Quantidade alterada.');
+    setModal2Open(false);
+  } catch (error) {
+    console.error('Erro ao alterar quantidade:', error);
+  }
+};
+
+const handleConfig = () => {
+  setModal2Open(true);
+};
+
+
+
+const handleClose = () => {
+  setModal2Open(false);
+  console.log(modal2Open)
+};
+
   const mudaPrato = (event) => {
     setPratoSelecionado(event.target.value);
   };
 
   return (
     <div className={styles.divPrinc}>
-      <h1>Mesas</h1>
+      <h1>Mesas
+      {tipoUsuario === 'estabelecimento' && (
+        <>
+        <div onClick={() => handleConfig()} className={styles.imagemMesaContainer}>
+        <img
+        src={engrenagem}
+        className={styles.imagemEngrenagem}
+        />
+      </div>
+      {modal2Open &&(
+        <div className={styles.fullScreenModal}>
+        <section className={styles.modalContent}>
+        <p className={styles.namegroup}>Quantidade atual:{mesas.length > 0 ? mesas.slice(-1)[0].numero : 'Nenhuma mesa disponível'} </p>
+        <p className={styles.namegroup}>Insira a nova quantidade de mesas:</p>
+            <input
+              type="number"
+              className={styles.input}
+              placeholder='Nova quantidade'
+              value={quantMesa}
+              onChange={(e) => setQuantMesa(e.target.value)}
+              required
+            />
+          <p className={styles.mensage}>{mensagem3}</p>
+          <button className={styles.bottomgroup} onClick={handleClose}>Cancelar</button>
+          <button className={styles.bottomgroup} onClick={handleConfirm}>Confirmar</button>
+        </section>
+        </div>
+      )}
+      </>
+      )}
+      </h1>
       <h2>{mensagem}</h2>
       <ul className={styles.listaMesas}>
         {mesas.map((mesa, index) => (
@@ -215,4 +299,3 @@ const handleEnviarPedidos = async (e) => {
 }
 
 export default Mesas;
-

@@ -97,6 +97,9 @@ function Navbar() {
           <button className={styles.Button} onClick={() => handleSubitemClick('/visualizar-mesas')}><MdOutlineProductionQuantityLimits /> Lançar produtos</button>
           </li>
           <li>
+          <button className={styles.Button} onClick={() => handleSubitemClick('/abrirmesas')}><MdTableBar /> Visualizar mesas</button>
+          </li>
+          <li>
           <li className={styles.subitem}><IoPeople /> Funcionarios</li>
             <ul className={styles.submenu}>
               <button className={styles.Button} onClick={() => handleSubitemClick('/cadastro')}><IoPeople /> Cadastrar funcionarios</button>

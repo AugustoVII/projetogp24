@@ -134,7 +134,7 @@ def mudarQuantMesas():
     idEst = load_user(current_user.id)
     cnpj = Estabelecimento.select(Estabelecimento.cnpj).where(Estabelecimento.id == idEst)
     data = request.get_json()
-    quantidade = data['quantidade']
+    quantidade = data
     quantidadeMesas = Mesa.select().where((Mesa.estabelecimento_id == idEst)).count()
     consulta = Mesa.select().where((Mesa.estabelecimento_id == idEst)).order_by(Mesa.numero.asc())
     if quantidade == quantidadeMesas:
@@ -480,11 +480,6 @@ def obterStatusMesas():
     else:
         lista = obterListaMesas(usuario.estabelecimento_id)
         return lista 
-
-
-
-
-
 
 if __name__ == '__main__':
     initialize_app()

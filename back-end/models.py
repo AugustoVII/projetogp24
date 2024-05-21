@@ -10,23 +10,23 @@ import re
 # waiterwebuepb
 
 # servidor local
-# DATABASE = {
-#     'name': 'projetogp3',
-#     'user': 'postgres',
-#     'password': 'postgres',
-#     'host': 'localhost',  
-#     'port': 5432,          
-# }
+DATABASE = {
+    'name': 'projetogp3',
+    'user': 'postgres',
+    'password': 'postgres',
+    'host': 'localhost',  
+    'port': 5432,          
+}
 
 
 # servidor supabase
-DATABASE = {
-    'name': 'postgres',
-    'user': 'postgres.dotabrjstpovpmavmqtx',
-    'password': 'waiterwebuepb',
-    'host': 'aws-0-sa-east-1.pooler.supabase.com',  
-    'port': 5432,          
-}
+# DATABASE = {
+#     'name': 'postgres',
+#     'user': 'postgres.dotabrjstpovpmavmqtx',
+#     'password': 'waiterwebuepb',
+#     'host': 'aws-0-sa-east-1.pooler.supabase.com',  
+#     'port': 5432,          
+# }
 
 
 database = PostgresqlDatabase(
@@ -143,6 +143,7 @@ class Mesa(BaseModel):
     numero = IntegerField()
     status = CharField(choices=['livre', 'ocupada', 'fechada'])
     estabelecimento_id = ForeignKeyField(Estabelecimento, backref='mesas')
+    active = BooleanField(default = True)
 
     def listar_pedidos(self):
         # Retornar todos os pedidos associados a esta mesa

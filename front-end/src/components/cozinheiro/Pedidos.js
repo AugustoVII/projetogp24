@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../css/Pedidos.module.css';
 import axios from 'axios';
-import Modal from '../modal/Modal'
+import Modal from '../modal/Modal';
+
 function Pedidos() {
-  const [selectedPedido, setSelectedPedido] = useState(' ');
+  const [selectedPedido, setSelectedPedido] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [pedidos, setPedidos] = useState([]);
   const [mensagem, setMensagem] = useState('');
 
   const handleConfirm = () => {
+    // Verifique se selectedPedido está definido
+    if (!selectedPedido) return;
+
     // Lógica de confirmação, por exemplo, atualizando o status do pedido
     const formData = {
-      pedidoId: selectedPedido, // Envie apenas o ID do pedido
+      pedidoId: selectedPedido.pedido, // Envie o ID do pedido
+      idpedidoproduto: selectedPedido.idpedidoproduto, // Envie o ID do pedidoproduto
     };
 
     axios.post('/marcarpedido', formData)
@@ -19,6 +24,8 @@ function Pedidos() {
         // Verifique o status da resposta para determinar se a requisição foi bem-sucedida
         if (response.status === 200) { // Verifique o status 200 para sucesso
           setMensagem('Pedido marcado como concluído!');
+          // Atualize a lista de pedidos removendo o pedido concluído baseado no idpedidoproduto
+          setPedidos(prevPedidos => prevPedidos.filter(p => p.idpedidoproduto !== selectedPedido.idpedidoproduto));
         } else {
           setMensagem('Erro ao marcar o pedido como concluído. Tente novamente.');
         }
@@ -40,8 +47,8 @@ function Pedidos() {
       }
     };
 
-    // Função para buscar pedidos a cada 5 segundos
-    const interval = setInterval(fetchPedidos, 3000); // Consulta a cada 5 segundos (ajuste conforme necessário)
+    // Função para buscar pedidos a cada 3 segundos
+    const interval = setInterval(fetchPedidos, 3000); // Consulta a cada 3 segundos (ajuste conforme necessário)
 
     // Limpa o intervalo quando o componente é desmontado
     return () => clearInterval(interval);
@@ -55,16 +62,16 @@ function Pedidos() {
   const handleClose = () => {
     setShowModal(false);
   };
-  
 
   return (
     <div className={styles.divPrinc}>
       <h1>Pedidos</h1>
+      <p>{mensagem}</p>
       <ul className={styles.listaMesas}>
         {pedidos.map((pedido, index) => (
           <li key={index} className={styles.liMesa}>
             <span className={styles.numeroMesa}>Mesa {pedido.mesa} pedido {pedido.pedido}</span>
-            <div className={styles.tablediv} onClick={() => handlePedidoClick(pedido.pedido)}>
+            <div className={styles.tablediv} onClick={() => handlePedidoClick(pedido)}>
               <table className={styles.table}>
                 <thead className={styles.colun}>
                   <tr>
@@ -73,9 +80,9 @@ function Pedidos() {
                   </tr>
                 </thead>
                 <tbody className={styles.tbody}>
-                  <tr className={styles.tr} key={pedido.pedido}>
-                    <td className={styles.quant}>{pedido.quantidade}</td>
-                    <td className={styles.prato}>{pedido.prato}</td>
+                  <tr key={pedido.pedido}>
+                    <td>{pedido.quantidade}</td>
+                    <td>{pedido.prato}</td>
                   </tr>
                 </tbody>
               </table>
@@ -83,12 +90,11 @@ function Pedidos() {
           </li>
         ))}
       </ul>
-      {showModal &&(
-        <div><Modal show={showModal} handleClose={handleClose} handleConfirm={handleConfirm}>
-        <p className={styles.titulo}>Tem certeza que deseja confirmar o pedido?</p>
-      </Modal></div>
+      {showModal && (
+        <Modal show={showModal} handleClose={handleClose} handleConfirm={handleConfirm}>
+          <p className={styles.titulo}>Tem certeza que deseja confirmar o pedido?</p>
+        </Modal>
       )}
-      
     </div>
   );
 }

@@ -111,13 +111,19 @@ def cadastrar_estabelecimento():
     numero  = data['numero']
     email = data['email']
     conf_email = data['confirmarEmail']
+    quantMesas = data['quantMesas']
     if email == conf_email:
-        Estabelecimento.create(nome = nome, cnpj = cnpj, senha = senha, cidade = cidade, bairro = bairro, rua = rua, numero = numero, email = email)
-        criarMesas(cnpj)
-
-        return jsonify({'message': 'Estabelecimento cadastrado com sucesso'}), 200
+        try:
+            Estabelecimento.create(nome = nome, cnpj = cnpj, senha = senha, cidade = cidade, bairro = bairro, rua = rua, numero = numero, email = email)
+            if quantMesas >=1:
+                criarMesas(cnpj, quantMesas)
+                return jsonify({'message': 'Estabelecimento cadastrado com sucesso'}), 200
+            else:
+                return jsonify({'message': 'aconteceu algum erro ao criar as mesas!'}), 400
+        except:
+             return jsonify({'message': 'aconteceu algum erro!'}), 400
     else:
-        return jsonify({'error': 'E-mails não coincidem'}), 400
+            return jsonify({'error': 'E-mails não coincidem'}), 400
 
 
 # cadastro funcionario
@@ -311,7 +317,9 @@ def obterPedidos():
             "mesa" : pedido.pedido.mesa.numero,
             "quantidade": pedido.quantidade,
             "prato": pedido.produto.nome,
-            "pedido": pedido.pedido.id
+            "pedido": pedido.pedido.id,
+            "idpedidoproduto" : pedido.id
+  
             # "status": pedido.pedidoproduto.status
         }
         listaPedido.append(pedido_data)
@@ -328,20 +336,30 @@ def marcarPedidoConcluido():
         idEst = usuario.estabelecimento_id
 
     data = request.get_json()
+    # print('Data received:', data)  # Debugging line
+
+    # try:
     idPedido = data['pedidoId']
+    idpedidoproduto = data['idpedidoproduto']
+    # except KeyError as e:
+    #     return jsonify({'message': f'Missing key: {str(e)}'}), 400
 
-    pedido = PedidoProduto.get(pedido_id = idPedido)
-    if pedido:
-        pedido.status = "entregue"
-        pedido.save()
-        return jsonify({'message': 'Pedido marcado com sucesso!'}), 200     
+    consulta = (PedidoProduto
+                .select(PedidoProduto)
+                .join(Pedido, on=(Pedido.id == PedidoProduto.pedido))
+                .join(Produto, on=(PedidoProduto.produto == Produto.id))
+                .where((PedidoProduto.pedido == idPedido) & (PedidoProduto.id == idpedidoproduto))
+                .order_by(Pedido.id.asc())
+                .first())
+
+    if consulta:
+        id_pedido_produto = consulta.id
+        produto = PedidoProduto.get(id=id_pedido_produto)
+        produto.status = "entregue"
+        produto.save()
+        return jsonify({'message': 'Pedido marcado com sucesso!'}), 200
     else:
-        return jsonify({'message': 'Pedido nao encontrado !'}), 400    
-
-
-
-
-
+        return jsonify({'message': 'Pedido não encontrado!'}), 400
 
     
 

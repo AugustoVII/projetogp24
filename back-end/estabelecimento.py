@@ -44,11 +44,11 @@ def excluirFuncionario(id):
     except Usuario.DoesNotExist:
         return False  # Usuário não encontrado
 
-def criarMesas(cnpj):
+def criarMesas(cnpj, quant):
     try: 
         x = Estabelecimento.get(cnpj=cnpj)
-        for i in range(1,101):
-            Mesa.create(numero = i, status = "livre", estabelecimento_id = x.id)
+        for i in range(1,quant+1):
+            Mesa.create(numero = i, status = "livre", estabelecimento_id = x.id, active = True)
     except Estabelecimento.DoesNotExist :
         return 'estabelecimento não encontrado' 
     

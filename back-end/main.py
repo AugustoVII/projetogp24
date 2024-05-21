@@ -126,6 +126,53 @@ def cadastrar_estabelecimento():
             return jsonify({'error': 'E-mails não coincidem'}), 400
 
 
+
+@app.route('/mudarQuantMesas', methods=['POST'])
+@login_required
+@estabelecimento_required
+def mudarQuantMesas():
+    idEst = load_user(current_user.id)
+    cnpj = Estabelecimento.select(Estabelecimento.cnpj).where(Estabelecimento.id == idEst)
+    data = request.get_json()
+    quantidade = data['quantidade']
+    quantidadeMesas = Mesa.select().where((Mesa.estabelecimento_id == idEst)).count()
+    consulta = Mesa.select().where((Mesa.estabelecimento_id == idEst)).order_by(Mesa.numero.asc())
+    if quantidade == quantidadeMesas:
+        for mesas in consulta:
+            if mesas.numero <= quantidade:
+                mesas.active = True
+                mesas.save()
+            return jsonify({'message': 'quantidade de mesas alterada'}), 200 
+    elif quantidade >=1 and quantidade < quantidadeMesas:
+        try:
+            for mesas in consulta:
+                if mesas.numero <= quantidade:
+                    mesas.active = True
+                    mesas.save()
+                else:
+                    mesas.active = False
+                    mesas.save()
+            return jsonify({'message': 'quantidade de mesas alterada'}), 200 
+        except:
+            return jsonify({'message': 'aconteceu algum erro!'}), 400
+        
+    elif quantidade >=1 and quantidade > quantidadeMesas:
+        try:
+            for mesas in consulta:
+                if mesas.numero <= quantidade:
+                    mesas.active = True
+                    mesas.save()
+            criarMesasQuantidade(cnpj, quantidadeMesas, quantidade)
+            return jsonify({'message': 'quantidade de mesas alterada'}), 200 
+        except:
+            return jsonify({'message': 'aconteceu algum erro!'}), 400
+    else:
+        return jsonify({'message': 'aconteceu algum erro!'}), 400
+
+
+
+
+
 # cadastro funcionario
 @app.route('/cadastrarusuario', methods=['POST'])
 @login_required

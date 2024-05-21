@@ -52,6 +52,14 @@ def criarMesas(cnpj, quant):
     except Estabelecimento.DoesNotExist :
         return 'estabelecimento não encontrado' 
     
+def criarMesasQuantidade(cnpj, quantatual, quantfinal):
+    try: 
+        x = Estabelecimento.get(cnpj=cnpj)
+        for i in range(quantatual+1,quantfinal+1):
+            Mesa.create(numero = i, status = "livre", estabelecimento_id = x.id, active = True)
+    except Estabelecimento.DoesNotExist :
+        return 'estabelecimento não encontrado' 
+    
 def obterListaMesas(idEstabelecimento):
     try:
         mesas = Mesa.select().where(Mesa.estabelecimento_id == idEstabelecimento).order_by(Mesa.numero.asc())

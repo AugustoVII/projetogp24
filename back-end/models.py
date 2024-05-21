@@ -148,6 +148,8 @@ class Mesa(BaseModel):
     def listar_pedidos(self):
         # Retornar todos os pedidos associados a esta mesa
         return self.pedidos
+    def mudarActive(self, estado):
+        self.active = estado
     
 # Classe para Pedido
 class Pedido(BaseModel):

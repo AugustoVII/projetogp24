@@ -11,10 +11,10 @@ import re
 
 # servidor local
 DATABASE = {
-    'name': 'postgres',
-    'user': 'postgres.dotabrjstpovpmavmqtx',
-    'password': 'waiterwebuepb',
-    'host': 'aws-0-sa-east-1.pooler.supabase.com',  
+    'name': 'projetogp3',
+    'user': 'postgres',
+    'password': 'postgres',
+    'host': 'localhost',  
     'port': 5432,          
 }
 

@@ -111,19 +111,19 @@ def cadastrar_estabelecimento():
     numero  = data['numero']
     email = data['email']
     conf_email = data['confirmarEmail']
-    quantMesas = data['quantMesas']
-    if email == conf_email:
+    quantMesas = int(data['quantMesas'])
+
+    try:
+        estabelecimento = Estabelecimento.create(nome = nome, cnpj = cnpj, senha = senha, cidade = cidade, bairro = bairro, rua = rua, numero = numero, email = email)
         try:
-            Estabelecimento.create(nome = nome, cnpj = cnpj, senha = senha, cidade = cidade, bairro = bairro, rua = rua, numero = numero, email = email)
-            if quantMesas >=1:
-                criarMesas(cnpj, quantMesas)
-                return jsonify({'message': 'Estabelecimento cadastrado com sucesso'}), 200
-            else:
-                return jsonify({'message': 'aconteceu algum erro ao criar as mesas!'}), 400
+            for i in range(quantMesas):
+                Mesa.create(numero = i+1, status = "livre", estabelecimento_id = estabelecimento.id, active = True)
+            return jsonify({'message': 'Estabelecimento cadastrado com sucesso'}), 200       
         except:
-             return jsonify({'message': 'aconteceu algum erro!'}), 400
-    else:
-            return jsonify({'error': 'E-mails não coincidem'}), 400
+            return jsonify({'message': 'aconteceu algum erro!'}), 401
+        
+    except:
+        return jsonify({'message': 'aconteceu algum erro!'}), 400
 
 
 

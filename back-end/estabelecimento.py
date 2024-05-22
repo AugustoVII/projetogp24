@@ -47,7 +47,7 @@ def excluirFuncionario(id):
 def criarMesas(cnpj, quant):
     try: 
         x = Estabelecimento.get(cnpj=cnpj)
-        for i in range(0,quant+1):
+        for i in range(quant+1):
             Mesa.create(numero = i+1, status = "livre", estabelecimento_id = x.id, active = True)
     except Estabelecimento.DoesNotExist :
         return 'estabelecimento não encontrado' 
@@ -62,7 +62,7 @@ def criarMesasQuantidade(cnpj, quantatual, quantfinal):
     
 def obterListaMesas(idEstabelecimento):
     try:
-        mesas = Mesa.select().where(Mesa.estabelecimento_id == idEstabelecimento).order_by(Mesa.numero.asc())
+        mesas = Mesa.select().where((Mesa.estabelecimento_id == idEstabelecimento) & Mesa.active == True).order_by(Mesa.numero.asc())
         lista_mesas = []
         for mesa in mesas:
             mesa_data = {

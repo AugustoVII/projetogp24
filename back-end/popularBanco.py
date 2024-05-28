@@ -16,14 +16,14 @@ def popularBanco():
     criarMesas(cnpj2,15)
     idest2 = est2.id
 
-    garcom1 = Usuario.create(nome = "joao garcom", usuario = "joao garcom",senha = generate_password_hash("12345678"), tipo = "garcom", estabelecimento_id = idest1, role = "garcom" )
-    gerente1 = Usuario.create(nome = "jose gerente", usuario = "jose gerente",senha = generate_password_hash("12345678"), tipo = "gerente", estabelecimento_id = idest1, role = "gerente" )
-    caixa1 = Usuario.create(nome = "maria caixa", usuario = "maria caixa",senha = generate_password_hash("12345678"), tipo = "caixa", estabelecimento_id = idest1, role = "caixa" )
-    cozinheira1 = Usuario.create(nome = "josefa cozinheira", usuario = "josefa cozinheira",senha = generate_password_hash("12345678"), tipo = "caixa", estabelecimento_id = idest1, role = "caixa" )
-    garcom2 = Usuario.create(nome = "jonas garcom", usuario = "jonas garcom",senha = generate_password_hash("12345678"), tipo = "garcom", estabelecimento_id = idest1, role = "garcom" )
-    gerente2 = Usuario.create(nome = "vanessa gerente", usuario = "vanessa gerente",senha = generate_password_hash("12345678"), tipo = "gerente", estabelecimento_id = idest1, role = "gerente" )
-    caixa2 = Usuario.create(nome = "manoel caixa", usuario = "manoel caixa",senha = generate_password_hash("12345678"), tipo = "caixa", estabelecimento_id = idest1, role = "caixa" )
-    cozinheira2 = Usuario.create(nome = "andre cozinheira", usuario = "andre cozinheira",senha = generate_password_hash("12345678"), tipo = "caixa", estabelecimento_id = idest1, role = "caixa" )
+    garcom1 = Usuario.create(nome = "joaogarcom", usuario = "joaogarcom",senha = generate_password_hash("12345678"), tipo = "garcom", estabelecimento_id = idest1, role = "garcom" )
+    gerente1 = Usuario.create(nome = "josegerente", usuario = "josegerente",senha = generate_password_hash("12345678"), tipo = "gerente", estabelecimento_id = idest1, role = "gerente" )
+    caixa1 = Usuario.create(nome = "mariacaixa", usuario = "mariacaixa",senha = generate_password_hash("12345678"), tipo = "caixa", estabelecimento_id = idest1, role = "caixa" )
+    cozinheira1 = Usuario.create(nome = "josefa ozinheira", usuario = "josefacozinheira",senha = generate_password_hash("12345678"), tipo = "cozinheiro", estabelecimento_id = idest1, role = "cozinheiro" )
+    garcom2 = Usuario.create(nome = "jonasgarcom", usuario = "jonasgarcom",senha = generate_password_hash("12345678"), tipo = "garcom", estabelecimento_id = idest1, role = "garcom" )
+    gerente2 = Usuario.create(nome = "vanessagerente", usuario = "vanessagerente",senha = generate_password_hash("12345678"), tipo = "gerente", estabelecimento_id = idest1, role = "gerente" )
+    caixa2 = Usuario.create(nome = "manoelcaixa", usuario = "manoelcaixa",senha = generate_password_hash("12345678"), tipo = "caixa", estabelecimento_id = idest1, role = "caixa" )
+    cozinheira2 = Usuario.create(nome = "andrecozinheira", usuario = "andre cozinheira",senha = generate_password_hash("12345678"), tipo = "cozinheiro", estabelecimento_id = idest1, role = "cozinheiro" )
 
 
     prod3 = Produto.create(nome = "Sopa de Lentilha com Bacon", valor = 12, categoria = "sopas", estabelecimento_id = idest1)

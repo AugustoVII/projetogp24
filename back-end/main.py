@@ -383,13 +383,67 @@ def marcarPedidoConcluido():
         idEst = usuario.estabelecimento_id
 
     data = request.get_json()
-    # print('Data received:', data)  # Debugging line
+
+    idPedido = data['pedidoId']
+    idpedidoproduto = data['idpedidoproduto']
+
+
+    consulta = (PedidoProduto
+                .select(PedidoProduto)
+                .join(Pedido, on=(Pedido.id == PedidoProduto.pedido))
+                .join(Produto, on=(PedidoProduto.produto == Produto.id))
+                .where((PedidoProduto.pedido == idPedido) & (PedidoProduto.id == idpedidoproduto))
+                .order_by(Pedido.id.asc())
+                .first())
+
+    if consulta:
+        id_pedido_produto = consulta.id
+        produto = PedidoProduto.get(id=id_pedido_produto)
+        produto.status = "pronto"
+        produto.save()
+        return jsonify({'message': 'Pedido marcado com sucesso!'}), 200
+    else:
+        return jsonify({'message': 'Pedido não encontrado!'}), 400
+
+@app.route('/pedidopronto', methods=['GET'])
+@login_required
+def obterPedidosProntos():
+    usuario = load_user(current_user.id)
+    if usuario.role == "estabelecimento":
+        idEst = usuario.id
+    else:
+        idEst = usuario.estabelecimento_id
+    consulta = PedidoProduto.select(PedidoProduto, Pedido, Produto, Mesa).where((Pedido.estabelecimento_id == idEst) & (PedidoProduto.status == "pronto")).join(Pedido, JOIN.INNER, on=(Pedido.id == PedidoProduto.pedido)).join(Produto, JOIN.INNER, on=(PedidoProduto.produto == Produto.id)).join(Mesa, JOIN.INNER, on=(Pedido.mesa_id == Mesa.id)).order_by(Pedido.id.asc())
+
+    listaPedido = []
+    for pedido in consulta:
+        pedido_data = {
+            "mesa" : pedido.pedido.mesa.numero,
+            "quantidade": pedido.quantidade,
+            "prato": pedido.produto.nome,
+            "pedido": pedido.pedido.id,
+            "idpedidoproduto" : pedido.id
+          }
+        listaPedido.append(pedido_data)
+    return listaPedido
+
+
+
+@app.route('/marcarpedidopronto', methods=['POST'])
+@login_required
+def marcarPedidoPronto():
+    usuario = load_user(current_user.id)
+    if usuario.role == "estabelecimento":
+        idEst = usuario.id
+    else:
+        idEst = usuario.estabelecimento_id
+
+    data = request.get_json()
 
     # try:
     idPedido = data['pedidoId']
     idpedidoproduto = data['idpedidoproduto']
-    # except KeyError as e:
-    #     return jsonify({'message': f'Missing key: {str(e)}'}), 400
+
 
     consulta = (PedidoProduto
                 .select(PedidoProduto)
@@ -407,11 +461,6 @@ def marcarPedidoConcluido():
         return jsonify({'message': 'Pedido marcado com sucesso!'}), 200
     else:
         return jsonify({'message': 'Pedido não encontrado!'}), 400
-
-    
-
-
-
     
 
 

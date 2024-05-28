@@ -187,7 +187,7 @@ class PedidoProduto(BaseModel):
     pedido = ForeignKeyField(Pedido, backref='itens_pedido')
     produto = ForeignKeyField(Produto)
     quantidade = IntegerField(default=1)
-    status = CharField(choices=['preparando', 'entregue'])
+    status = CharField(choices=['preparando', 'entregue', "pronto"])
 
 
 

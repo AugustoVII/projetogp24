@@ -405,6 +405,8 @@ def marcarPedidoConcluido():
     else:
         return jsonify({'message': 'Pedido não encontrado!'}), 400
 
+
+
 @app.route('/pedidopronto', methods=['GET'])
 @login_required
 def obterPedidosProntos():
@@ -429,7 +431,7 @@ def obterPedidosProntos():
 
 
 
-@app.route('/marcarpedidopronto', methods=['POST'])
+@app.route('/marcarpedidoentregue', methods=['POST'])
 @login_required
 def marcarPedidoPronto():
     usuario = load_user(current_user.id)

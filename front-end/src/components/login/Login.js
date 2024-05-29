@@ -59,6 +59,10 @@ function Login() {
           history.push('/cadastro');
           window.location.reload();
         }
+        if (tipoUsuario === 'garcom') {
+          history.push('/pedidosprontos');
+          window.location.reload();
+        }
         else{
           history.push('/home');
           window.location.reload();

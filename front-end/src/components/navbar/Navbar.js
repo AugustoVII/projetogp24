@@ -9,6 +9,7 @@ import { IoPeople } from "react-icons/io5";
 import { LuBoxes } from "react-icons/lu";
 import { MdDiscount } from "react-icons/md";
 import { IoIosLogOut } from "react-icons/io";
+import { BiDish } from "react-icons/bi";
 
 
 function Navbar() {
@@ -58,7 +59,7 @@ function Navbar() {
         {tipoUsuario === 'garcom' && (
           <li>
             <button className={styles.Button} onClick={() => handleSubitemClick('/abrirmesas')}><MdTableBar /> Abrir mesa</button>
-            <button className={styles.Button} onClick={() => handleSubitemClick('/alterar-pedidos')}><MdOutlineProductionQuantityLimits /> Lançar produtos</button>
+            <button className={styles.Button} onClick={() => handleSubitemClick('/pedidosprontos')}><BiDish /> Pedidos prontos</button>
           </li>
         )}
 
@@ -94,7 +95,7 @@ function Navbar() {
         {tipoUsuario === 'estabelecimento' && (
           <> 
           <li>
-          <button className={styles.Button} onClick={() => handleSubitemClick('/visualizar-mesas')}><MdOutlineProductionQuantityLimits /> Lançar produtos</button>
+          <button className={styles.Button} onClick={() => handleSubitemClick('/addproduto')}><MdOutlineProductionQuantityLimits /> Lançar produtos</button>
           </li>
           <li>
           <button className={styles.Button} onClick={() => handleSubitemClick('/abrirmesas')}><MdTableBar /> Visualizar mesas</button>
@@ -114,7 +115,7 @@ function Navbar() {
 
         {tipoUsuario === 'cozinheiro' && (
           <li>
-           <button className={styles.Button} onClick={() => handleSubitemClick('/pedidos')}>Visualizar pedidos</button>
+           <button className={styles.Button} onClick={() => handleSubitemClick('/pedidos')}><BiDish /> Visualizar pedidos</button>
           </li>
         )}
 

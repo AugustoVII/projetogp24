@@ -11,6 +11,7 @@ import AddProd from './components/gerente/AddProd'
 import Mesas from './components/garcom/Mesas'
 import Home from './components/home/Inicial'
 import Pedidos from './components/cozinheiro/Pedidos'
+import PedidosProntos from './components/garcom/Pedidos'
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/addproduto" component={AddProd} />
           <Route path='/abrirmesas' component={Mesas} />
           <Route path='/home' component={Home} />
+          <Route path='/pedidosprontos' component={PedidosProntos} />
         </Switch>
     </Router>
     </div>

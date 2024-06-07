@@ -213,7 +213,7 @@ function CadastroEstabelecimento(){
                 </div>
                 <div >
                 <p className={styles.namegroup}><MdTableRestaurant /> Quantidade de mesas:</p>
-                        <input type="text"
+                        <input type="number"
                         className={styles.input} 
                         placeholder="Informe a a quantidade de mesas" 
                         value={quantMesas} 

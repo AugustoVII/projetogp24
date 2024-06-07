@@ -12,7 +12,7 @@ import Mesas from './components/garcom/Mesas'
 import Home from './components/home/Inicial'
 import Pedidos from './components/cozinheiro/Pedidos'
 import PedidosProntos from './components/garcom/Pedidos'
-
+import Inicio from './components/home/Inicio'
 function App() {
   return (
     <div className="App">
@@ -21,7 +21,7 @@ function App() {
         <Switch>
         <Route path="/pedidos" component={Pedidos} />
           <Route path="/logout" component={Logout} />
-          <Route exact path="/" component={CadastroEstabelecimento} />
+          <Route exact path="/" component={Inicio} />
           <Route path="/cadastrar" component={CadastroEstabelecimento} />
           <Route path="/cadastro" component={Cadastro} />
           <Route path="/login" component={Login} />

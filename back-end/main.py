@@ -465,62 +465,6 @@ def marcarPedidoPronto():
         return jsonify({'message': 'Pedido não encontrado!'}), 400
     
 
-
-
-
-@app.route('/abrirmesaespecifica', methods=['POST'])
-def abrirmesaespecifica():
-    data = request.get_json()
-    num = data['numero']
-    try: 
-        Mesa.create(numero = num, status = "ocupada")
-        return jsonify({'message': 'Mesa aberta com sucesso'}), 200
-    except IntegrityError as e:
-        mensagem = extrairErro(e)
-        return jsonify({'message': f"A inserção violou alguma chave: {mensagem}"}), 400
-
-@app.route('/abrirmesa', methods=['POST'])
-def abrirmesa():
-    data = request.get_json()
-    num = data['numero']
-    try: 
-        mesa = Mesa.get(numero = num)
-        mesa.status = "ocupada"
-        mesa.save()
-        return jsonify({'message': 'Mesa aberta com sucesso'}), 200
-    except IntegrityError as e:
-        mensagem = extrairErro(e)
-        return jsonify({'message': f"A inserção violou alguma chave: {mensagem}"}), 400
-
-
-
-@app.route('/fecharmesa', methods=['POST'])
-def fecharmesa():
-    data = request.get_json()
-    num = data['numero']
-    try: 
-        mesa = Mesa.get(numero = num)
-        mesa.status = "fechada"
-        mesa.save()
-        return jsonify({'message': 'Mesa fechada com sucesso'}), 200
-    except Mesa.DoesNotExist as e:
-        return jsonify({'message': f"Mesa nao encontrada"}), 400
-
-@app.route('/calcularmesa', methods=['POST'])
-def calcularmesa():
-    data = request.get_json()
-    num = data['numero']
-    try: 
-        mesa = Mesa.get(numero = num)
-        if mesa.status == "aberta" or mesa.status == "livre":
-            return jsonify({'message': 'Mesa se encontra aberta, é necessario fechar para somar'}), 400
-        else:
-            total = calcularConta(mesa.id)
-            return jsonify({'message': f'total mesa = {total}'}), 200
-    except Mesa.DoesNotExist as e:
-        return jsonify({'message': f"Mesa nao encontrada"}), 400
-
-
 @app.route('/mesas', methods=['GET'])
 @login_required
 def obterStatusMesas():
@@ -531,6 +475,58 @@ def obterStatusMesas():
     else:
         lista = obterListaMesas(usuario.estabelecimento_id)
         return lista 
+
+
+
+@app.route('/mesasocupadas', methods=['GET'])
+@login_required
+def obterMesasOcupadas():
+    usuario = load_user(current_user.id)
+    if usuario.role == "estabelecimento":
+        lista = obterListaMesasOcupadas(usuario.id)
+        return lista 
+    else:
+        lista = obterListaMesasOcupadas(usuario.estabelecimento_id)
+        return lista
+    
+
+@app.route('/contamesa/<numero>', methods=['GET'])
+@login_required
+def obterContaMesa(numero):
+    usuario = load_user(current_user.id)
+    if usuario.role == "estabelecimento":
+        id = usuario.id
+    else:
+        id = usuario.id
+
+
+    consulta = (PedidoProduto
+                .select(PedidoProduto, Produto, Pedido, Mesa)
+                .join(Pedido, on=(Pedido.id == PedidoProduto.pedido))
+                .join(Produto, on=(PedidoProduto.produto == Produto.id))
+                .join(Mesa, on=(Pedido.mesa == Mesa.id))
+                .where(
+                    (Pedido.status.contains('andamento')) & 
+                    (Mesa.estabelecimento_id == id) & (Mesa.numero == numero)
+                )
+                .order_by(Produto.nome.asc())
+               )
+    
+    lista = []
+    for item in consulta:
+        pedido_data = ({
+            'quantidade': item.quantidade,
+            'nome': item.produto.nome,
+            'valorun': item.produto.valor,
+            'valorprod': item.produto.valor * item.quantidade    
+
+        })
+        lista.append(pedido_data)
+    return lista
+
+
+
+
 
 if __name__ == '__main__':
     initialize_app()

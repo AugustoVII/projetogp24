@@ -75,6 +75,26 @@ def obterListaMesas(idEstabelecimento):
     except :
         return 'estabelecimento não encontrado'
 
+def obterListaMesasOcupadas(idEstabelecimento):
+    try:
+        mesas = Mesa.select().where((Mesa.estabelecimento_id == idEstabelecimento) & Mesa.active == True).order_by(Mesa.numero.asc())
+        lista_mesas = []
+        for mesa in mesas:
+            if mesa.status == 'ocupada':
+                mesa_data = {
+                    'id' : mesa.id,
+                    'numero' : mesa.numero,
+                    'status' : mesa.status
+                }
+                lista_mesas.append(mesa_data)
+        return {'mesas': lista_mesas}
+    except :
+        return 'estabelecimento não encontrado'
+
+
+
+
+
 def obterListaProdutos(idEstab):
     try:
         produtos = Produto.select().where(Produto.estabelecimento_id == idEstab).order_by(Produto.nome.asc())

@@ -513,7 +513,9 @@ def obterContaMesa(numero):
                )
     
     lista = []
+    valorConta = 0
     for item in consulta:
+        valorConta += item.produto.valor * item.quantidade   
         pedido_data = ({
             'quantidade': item.quantidade,
             'nome': item.produto.nome,
@@ -522,6 +524,7 @@ def obterContaMesa(numero):
 
         })
         lista.append(pedido_data)
+    lista.append({'valorTotal' : valorConta})
     return lista
 
 

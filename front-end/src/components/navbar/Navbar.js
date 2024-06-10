@@ -65,7 +65,7 @@ function Navbar() {
 
         {tipoUsuario === 'caixa' && (
           <li>
-           <button className={styles.Button} onClick={() => handleSubitemClick('/visualizar-mesas')}><MdTableBar /> Fechar mesa</button>
+           <button className={styles.Button} onClick={() => handleSubitemClick('/comandas')}><MdTableBar /> Fechar mesa</button>
            <button className={styles.Button} onClick={() => handleSubitemClick('/alterar-pedidos')}><MdOutlineProductionQuantityLimits /> Lançar produtos</button>
           </li>
         )}

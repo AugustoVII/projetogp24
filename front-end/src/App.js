@@ -13,6 +13,8 @@ import Home from './components/home/Inicial'
 import Pedidos from './components/cozinheiro/Pedidos'
 import PedidosProntos from './components/garcom/Pedidos'
 import Inicio from './components/home/Inicio'
+import Comandas from './components/caixa/Comandas'
+
 function App() {
   return (
     <div className="App">
@@ -25,6 +27,7 @@ function App() {
           <Route path="/cadastrar" component={CadastroEstabelecimento} />
           <Route path="/cadastro" component={Cadastro} />
           <Route path="/login" component={Login} />
+          <Route path="/comandas" component={Comandas} />
           <Route path="/listausuarios" component={listausuarios} />
           <Route path="/addproduto" component={AddProd} />
           <Route path='/abrirmesas' component={Mesas} />

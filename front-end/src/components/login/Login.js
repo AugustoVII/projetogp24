@@ -63,6 +63,14 @@ function Login() {
           history.push('/pedidosprontos');
           window.location.reload();
         }
+        if (tipoUsuario === 'cozinheiro') {
+          history.push('/pedidos');
+          window.location.reload();
+        }
+        if (tipoUsuario === 'caixa') {
+          history.push('/comandas');
+          window.location.reload();
+        }
         else{
           history.push('/home');
           window.location.reload();

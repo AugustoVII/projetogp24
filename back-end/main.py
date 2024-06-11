@@ -527,43 +527,41 @@ def obterContaMesa(numero):
     lista.append({'valorTotal' : valorConta})
     return lista
 
+
+
 @app.route('/informacoesEst', methods=['GET'])
 @login_required
 def informacoesEst():
     usuario = load_user(current_user.id)
-    if usuario.role == "estabelecimento":
-        id = usuario.id
-    else:
-        useraux = usuario.id
-        id = usuario.estabelecimento_id
     try:
-        estabelecimento = Estabelecimento.get(id = id)
-        endereco = estabelecimento.obterEndereco()
+        if usuario.role == "estabelecimento":
+            id = usuario.id
+            estabelecimento = Estabelecimento.get(id=id)
+            endereco = estabelecimento.obterEndereco()
+            dados = {
+                "nomeEst": estabelecimento.nome,
+                "cnpj": estabelecimento.cnpj,
+                "endereco": endereco,
+                "email": estabelecimento.email,
+                "nomeFunc": ''
+            }
+            return dados, 200
 
-        dados = ({
-                "nomeEst" : estabelecimento.nome,
-                "cnpj" : estabelecimento.cnpj,
-                "endereco" : endereco,
-                "email" : estabelecimento.email,
-                "nomeFunc" : ''
-                })
-        return dados , 200
-    
-    except:
-        try:
-            if useraux:
-                usuario = Usuario.get(id = useraux)
-                dados = ({
-                        "nomeEst" : estabelecimento.nome,
-                        "cnpj" : estabelecimento.cnpj,
-                        "endereco" : endereco,
-                        "email" : estabelecimento.email,
-                        "nomeFunc" : usuario.nome
-                        })
-                return dados , 200
-        except:
-            return jsonify({'message': 'Usuario nao encontrado!'}), 400
-        return jsonify({'message': 'Estabelecimento nao encontrado!'}), 400
+        else:
+            id = usuario.estabelecimento_id
+            usuarioaux = Usuario.get(id=usuario.id)
+            estabelecimento = Estabelecimento.get(id=id)
+            endereco = estabelecimento.obterEndereco()
+            dados = {
+                "nomeEst": estabelecimento.nome,
+                "cnpj": estabelecimento.cnpj,
+                "endereco": endereco,
+                "email": estabelecimento.email,
+                "nomeFunc": usuarioaux.nome
+            }
+            return dados, 200
+    except Exception as e:
+        return jsonify({'message': f'Erro: {str(e)}'}), 400
 
 
     

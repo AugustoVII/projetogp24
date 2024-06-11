@@ -497,7 +497,7 @@ def obterContaMesa(numero):
     if usuario.role == "estabelecimento":
         id = usuario.id
     else:
-        id = usuario.id
+        id = usuario.estabelecimento_id
 
 
     consulta = (PedidoProduto
@@ -526,6 +526,51 @@ def obterContaMesa(numero):
         lista.append(pedido_data)
     lista.append({'valorTotal' : valorConta})
     return lista
+
+@app.route('/informacoesEst', methods=['GET'])
+@login_required
+def informacoesEst():
+    usuario = load_user(current_user.id)
+    if usuario.role == "estabelecimento":
+        id = usuario.id
+    else:
+        useraux = usuario.id
+        id = usuario.estabelecimento_id
+    try:
+        estabelecimento = Estabelecimento.get(id = id)
+        endereco = estabelecimento.obterEndereco()
+
+        dados = ({
+                "nomeEst" : estabelecimento.nome,
+                "cnpj" : estabelecimento.cnpj,
+                "endereco" : endereco,
+                "email" : estabelecimento.email,
+                "nomeFunc" : ''
+                })
+        return dados , 200
+    
+    except:
+        try:
+            if useraux:
+                usuario = Usuario.get(id = useraux)
+                dados = ({
+                        "nomeEst" : estabelecimento.nome,
+                        "cnpj" : estabelecimento.cnpj,
+                        "endereco" : endereco,
+                        "email" : estabelecimento.email,
+                        "nomeFunc" : usuario.nome
+                        })
+                return dados , 200
+        except:
+            return jsonify({'message': 'Usuario nao encontrado!'}), 400
+        return jsonify({'message': 'Estabelecimento nao encontrado!'}), 400
+
+
+    
+    
+
+
+
 
 
 

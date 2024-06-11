@@ -67,6 +67,8 @@ class Estabelecimento(BaseModel, UserMixin):
 
     def __repr__(self):
         return f"Estabelecimento: {self}"
+    def obterEndereco(self):
+        return f"Rua: {self.rua}, n° {self.numero}, {self.bairro}, {self.cidade} "
 
 
 class Usuario(BaseModel, UserMixin):

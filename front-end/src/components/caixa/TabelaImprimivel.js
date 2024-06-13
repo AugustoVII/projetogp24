@@ -10,13 +10,15 @@ function TabelaImprimivel({ tabelaHtml }) {
       <html>
         <head>
           <title>Comanda</title>
-          <link rel="stylesheet" type="text/css" href="caminho-para-seu-css.css">
           <style>
             @media print {
-            @page {
-              size: 80mm auto; /* 80mm de largura e tamanho automático de altura */
-              margin: 0;
-            }
+              @page {
+                size: 80mm auto; /* Define o tamanho da página como 80mm de largura e altura automática */
+                margin: 0; /* Remove as margens */
+              }
+              body {
+                margin: 0; /* Remove as margens do corpo */
+              }
               .tabela-imprimivel, .tabela-imprimivel * {
                 visibility: visible;
               }

@@ -13,9 +13,10 @@ function TabelaImprimivel({ tabelaHtml }) {
           <link rel="stylesheet" type="text/css" href="caminho-para-seu-css.css">
           <style>
             @media print {
-              body {
-                visibility: hidden;
-              }
+            @page {
+              size: 80mm auto; /* 80mm de largura e tamanho automático de altura */
+              margin: 0;
+            }
               .tabela-imprimivel, .tabela-imprimivel * {
                 visibility: visible;
               }

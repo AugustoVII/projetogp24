@@ -202,7 +202,6 @@ body{
     max-height: 250px; 
     overflow-y: auto;
     width: 100%;
-
     background: linear-gradient(to left, #e0e0e08a, #ffffff8a); 
     border: 3px solid #847663;
     box-shadow: 5px 10px 4px rgba(0, 0, 0, 0.2);

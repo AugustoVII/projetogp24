@@ -1,17 +1,18 @@
 {
   "files": {
-    "main.css": "/static/react/static/css/main.8d50cc07.css",
-    "main.js": "/static/react/static/js/main.6c6cd083.js",
+    "main.css": "/static/react/static/css/main.093af01f.css",
+    "main.js": "/static/react/static/js/main.f43d1367.js",
     "static/js/453.f7be5b23.chunk.js": "/static/react/static/js/453.f7be5b23.chunk.js",
+    "static/media/mesa.png": "/static/react/static/media/mesa.d8f417c1d09e34373c1a.png",
     "static/media/aberto.png": "/static/react/static/media/aberto.ba8bde32298eebbf6e99.png",
     "static/media/fechado.png": "/static/react/static/media/fechado.5738312a40fe0e4861a0.png",
     "../../templates/index.html": "/static/react/../../templates/index.html",
-    "main.8d50cc07.css.map": "/static/react/static/css/main.8d50cc07.css.map",
-    "main.6c6cd083.js.map": "/static/react/static/js/main.6c6cd083.js.map",
+    "main.093af01f.css.map": "/static/react/static/css/main.093af01f.css.map",
+    "main.f43d1367.js.map": "/static/react/static/js/main.f43d1367.js.map",
     "453.f7be5b23.chunk.js.map": "/static/react/static/js/453.f7be5b23.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.8d50cc07.css",
-    "static/js/main.6c6cd083.js"
+    "static/css/main.093af01f.css",
+    "static/js/main.f43d1367.js"
   ]
 }

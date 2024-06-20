@@ -1,0 +1,93 @@
+.divPrinc{
+    width: 70%;
+    margin: auto;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    background: linear-gradient(to right, #e0e0e08a, #ffffff8a); 
+    box-shadow: 5px 10px 4px rgba(0, 0, 0, 0.2);
+    border-radius:3px; 
+    padding:1em;
+    justify-content: center;
+    border-radius: 50px;
+    padding: 20px; 
+    flex-wrap: wrap;
+}
+
+body{
+    background-color: #e9dcc8;
+}
+
+.divPrinc > ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap; /* Permitir que as mesas quebrem para a próxima linha */
+    justify-content: center; /* Alinhar as mesas no centro horizontalmente */
+}
+  
+.divPrinc > ul > li {
+    flex: 0 0 calc(25% - 10px); /* Calculando o tamanho para 4 mesas por linha */
+    margin: 5px;
+}
+
+  
+.numeroMesa {
+    top: 1%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+.numeroPedido {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 4px 8px;
+    border-radius: 4px;
+} 
+
+.listaMesas {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap; /* Permitir que as mesas quebrem para a próxima linha */
+    justify-content: center; /* Alinhar as mesas no centro horizontalmente */
+}
+
+
+.colun{
+    width: 100%;
+    
+}
+.table{
+    width: 100%;
+}
+.tablediv{
+    max-height: 250px; 
+    overflow-y: auto;
+    width: 100%;
+    cursor: pointer;
+    background: linear-gradient(to left, #e0e0e08a, #ffffff8a); 
+    border: 3px solid #847663;
+    box-shadow: 5px 10px 4px rgba(0, 0, 0, 0.2);
+  
+}
+
+.titlecolun {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    border: 1px solid #847663;
+}
+
+.buttonGroup{
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}

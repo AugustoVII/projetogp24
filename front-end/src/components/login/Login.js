@@ -58,6 +58,10 @@ function Login() {
         if (tipoUsuario === 'estabelecimento') {
           history.push('/cadastro');
           window.location.reload();
+        }
+        else{
+          history.push('/home');
+          window.location.reload();
         } 
       } else {
         setMensagem('Verifique seus dados.');

@@ -4,16 +4,33 @@ import uuid
 from decimal import Decimal
 from peewee import *
 import re
+from flask import Flask
 
 
+app = Flask(__name__)
 
+# waiterweb
+# waiterwebuepb
+
+# banco local
 DATABASE = {
     'name': 'projetogp3',
     'user': 'postgres',
     'password': 'postgres',
-    'host': 'localhost',  # ou o endereço do seu servidor PostgreSQL
-    'port': 5432,          # a porta padrão do PostgreSQL é 5432
+    'host': 'localhost',  
+    'port': 5432,          
 }
+
+
+# banco supabase
+# DATABASE = {
+#     'name': 'postgres',
+#     'user': 'postgres.dotabrjstpovpmavmqtx',
+#     'password': 'waiterwebuepb',
+#     'host': 'aws-0-sa-east-1.pooler.supabase.com',  
+#     'port': 5432,          
+# }
+
 
 database = PostgresqlDatabase(
     DATABASE['name'],
@@ -33,7 +50,7 @@ class Role:
     GERENTE = 'gerente'
     GARCOM = 'garcom'
     CAIXA = 'caixa'
-    COZINHA = 'cozinha'
+    COZINHEIRO = 'cozinheiro'
 
 class Estabelecimento(BaseModel, UserMixin):
     id = UUIDField(primary_key=True, default=uuid.uuid4)
@@ -74,8 +91,8 @@ class Usuario(BaseModel, UserMixin):
     def is_garcom(self):
         return self.role == Role.GARCOM
     
-    def is_cozinha(self):
-        return self.role == Role.COZINHA
+    def is_cozinheiro(self):
+        return self.role == Role.COZINHEIRO
 
     def __repr__(self):
         return f"Usuario: {self}"
@@ -116,13 +133,16 @@ def formatar_cnpj(cnpj):
 
 # Classe para Produto
 class Produto(BaseModel):
-    nome = CharField(unique = True)
+    id = PrimaryKeyField(primary_key=True)
+    nome = CharField(max_length=100)
     valor = DecimalField(max_digits=10, decimal_places=2)
     categoria = CharField(max_length=50)
     estabelecimento_id = ForeignKeyField(Estabelecimento, backref='produtos')  # Relacionamento com Categoria
 
+
 # Classe para Mesa
 class Mesa(BaseModel):
+    id = PrimaryKeyField(primary_key=True)
     numero = IntegerField()
     status = CharField(choices=['livre', 'ocupada', 'fechada'])
     estabelecimento_id = ForeignKeyField(Estabelecimento, backref='mesas')
@@ -133,14 +153,15 @@ class Mesa(BaseModel):
     
 # Classe para Pedido
 class Pedido(BaseModel):
+    id = PrimaryKeyField(primary_key=True)
     mesa = ForeignKeyField(Mesa, backref='pedidos')  # Relacionamento com Mesa
-    status = CharField(choices=['preparando', 'entregue', "pago"])
+    status = CharField(choices=['andamento', 'pago'])
     estabelecimento_id = ForeignKeyField(Estabelecimento, backref='pedidos')
 
 
-    def adicionar_produto(self, produto, quantidade):
+    def adicionar_produto(self, produto, quantidade, status):
         # Criar uma nova entrada na tabela PedidoProduto
-        PedidoProduto.create(pedido=self, produto=produto, quantidade=quantidade)
+        PedidoProduto.create(pedido=self, produto=produto, quantidade=quantidade, status = status)
 
     def remover_produto(self, produto):
         try:
@@ -162,9 +183,11 @@ def proximo_numero_pedido():
 
 # Classe para os produtos em um Pedido (Muitos-para-Muitos)
 class PedidoProduto(BaseModel):
+    id = PrimaryKeyField(primary_key=True)
     pedido = ForeignKeyField(Pedido, backref='itens_pedido')
     produto = ForeignKeyField(Produto)
     quantidade = IntegerField(default=1)
+    status = CharField(choices=['preparando', 'entregue'])
 
 
 

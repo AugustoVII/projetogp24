@@ -88,8 +88,8 @@ def login():
                     return jsonify({'tipoUsuario': 'garcom'})
                 elif usuario.is_caixa():
                     return jsonify({'tipoUsuario': 'caixa'})
-                elif usuario.is_cozinha():
-                    return jsonify({'tipoUsuario': 'cozinha'})
+                elif usuario.is_cozinheiro():
+                    return jsonify({'tipoUsuario': 'cozinheiro'})
             else:
                 return jsonify({'error': 'Senha incorreta'}), 401
 
@@ -234,45 +234,40 @@ def homecaixa():
         return "nao é caixa"
 
 
+def obterIdEst(usuario):
+    if usuario.role == "estabelecimento":
+        return usuario.id
+    else:
+        return usuario.estabelecimento_id
+
+
 @app.route('/produto', methods=['POST'])
 @login_required
-@estabelecimento_or_gerente_required
-def adicionarproduto():
-    usuario = load_user(current_user.id)
+@gerente_required
+def AddProd():
+    idEst = obterIdEst(load_user(current_user.id))
+    
     data = request.get_json()
     nome = data['nome']
     categoria = data['categoria']
     valor = str_to_numeric(data['valor'])
-    if usuario.role == "gerente": #gerente logado
-        try:
-            Produto.create(nome = nome, categoria = categoria, valor = valor, estabelecimento_id = usuario.estabelecimento_id)
-            return jsonify({'message': 'Produto adicionado com sucesso'}), 200
-        except:
-            return jsonify({'message': f"A inserção violou alguma chave"}), 400
-
-    if usuario.role == "estabelecimento": # estabelecimento logado
-        try:
-            Produto.create(nome = nome, categoria = categoria, valor = valor, estabelecimento_id = usuario.id)
-            return jsonify({'message': 'Produto adicionado com sucesso'}), 200
-        except:
-            return jsonify({'message': f"A inserção violou alguma chave"}), 400
-
+    try:
+        Produto.create(nome = nome, categoria = categoria, valor = valor, estabelecimento_id = idEst)
+        return jsonify({'message': 'Produto adicionado com sucesso'}), 200
+    except:
+        return jsonify({'message': 'erro ao inserir'}), 400
 
 @app.route('/produto', methods=['GET'])
 @login_required
 def obterProdutos():
-    usuario = load_user(current_user.id)
-    if usuario.role == "estabelecimento":
-        produtos = obterListaProdutos(usuario.id)
-        return produtos
-    else:
-        produtos = obterListaProdutos(usuario.estabelecimento_id)
-        return produtos
+    idEst =obterIdEst(load_user(current_user.id))
+    produtos = obterListaProdutos(idEst)
+    return produtos
+
 
 
 @app.route('/pedido', methods=['POST'])
 @login_required
-@garcom_required
 def adicionarpedido():
     usuario = load_user(current_user.id)
     if usuario.role == "estabelecimento":
@@ -286,9 +281,10 @@ def adicionarpedido():
     mesa_id = data['pedidos'][0]['mesaId']
     try:
         mesa = Mesa.get(id = mesa_id)
-        if mesa.status == "ocupada":
-            pedido = Pedido(status = 'preparando', mesa = mesa, estabelecimento_id = idEst )
-            pedido.save()
+        mesa.status = "ocupada"
+        mesa.save()
+        pedido = Pedido(status = 'andamento', mesa = mesa, estabelecimento_id = idEst )
+        pedido.save()
     except:
         return jsonify({'message': 'Mesa se encontra fechada, solicite abertura!'}), 400
         
@@ -296,7 +292,7 @@ def adicionarpedido():
         prato = lista['prato']
         quantidade = lista['quantidade']
         produto = Produto.get(nome = prato)
-        pedido.adicionar_produto(produto = produto, quantidade = quantidade)
+        pedido.adicionar_produto(produto = produto, quantidade = quantidade, status = "preparando")
     return jsonify({'message': 'Pedido adicionado com sucesso!'}), 200        
 
 @app.route('/pedido', methods=['GET'])
@@ -307,7 +303,7 @@ def obterPedidos():
         idEst = usuario.id
     else:
         idEst = usuario.estabelecimento_id
-    consulta = PedidoProduto.select(PedidoProduto, Pedido, Produto, Mesa).where((Pedido.estabelecimento_id == idEst) & (Pedido.status == "preparando")).join(Pedido, JOIN.INNER, on=(Pedido.id == PedidoProduto.pedido)).join(Produto, JOIN.INNER, on=(PedidoProduto.produto == Produto.id)).join(Mesa, JOIN.INNER, on=(Pedido.mesa_id == Mesa.id)).order_by(Pedido.id.asc())
+    consulta = PedidoProduto.select(PedidoProduto, Pedido, Produto, Mesa).where((Pedido.estabelecimento_id == idEst) & (PedidoProduto.status == "preparando")).join(Pedido, JOIN.INNER, on=(Pedido.id == PedidoProduto.pedido)).join(Produto, JOIN.INNER, on=(PedidoProduto.produto == Produto.id)).join(Mesa, JOIN.INNER, on=(Pedido.mesa_id == Mesa.id)).order_by(Pedido.id.asc())
 
     listaPedido = []
     for pedido in consulta:
@@ -315,10 +311,51 @@ def obterPedidos():
             "mesa" : pedido.pedido.mesa.numero,
             "quantidade": pedido.quantidade,
             "prato": pedido.produto.nome,
-            "pedido": pedido.pedido.id
+            "pedido": pedido.pedido.id,
+            "idpedidoproduto" : pedido.id
+  
+            # "status": pedido.pedidoproduto.status
         }
         listaPedido.append(pedido_data)
     return listaPedido
+
+
+@app.route('/marcarpedido', methods=['POST'])
+@login_required
+def marcarPedidoConcluido():
+    usuario = load_user(current_user.id)
+    if usuario.role == "estabelecimento":
+        idEst = usuario.id
+    else:
+        idEst = usuario.estabelecimento_id
+
+    data = request.get_json()
+    idPedido = data['pedidoId']
+    idpedidoproduto = data['idpedidoproduto']
+
+    consulta = (PedidoProduto
+                .select(PedidoProduto)
+                .join(Pedido, JOIN.INNER, on=(Pedido.id == PedidoProduto.pedido))
+                .join(Produto, JOIN.INNER, on=(PedidoProduto.produto == Produto.id))
+                .where((PedidoProduto.pedido == idPedido) & (PedidoProduto.id == idpedidoproduto))
+                .order_by(Pedido.id.asc())
+                .first())    
+    if consulta:
+        id_pedido_produto = consulta.id
+        produto = PedidoProduto.get(id = id_pedido_produto)
+        produto.status = "entregue"
+        produto.save()
+        return jsonify({'message': 'Pedido marcado com sucesso!'}), 200     
+    else:
+        return jsonify({'message': 'Pedido nao encontrado !'}), 400    
+
+
+
+
+
+
+    
+
 
 
     

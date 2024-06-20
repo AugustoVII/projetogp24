@@ -383,7 +383,6 @@ def marcarPedidoConcluido():
         idEst = usuario.estabelecimento_id
 
     data = request.get_json()
-
     idPedido = data['pedidoId']
     idpedidoproduto = data['idpedidoproduto']
 
@@ -402,6 +401,22 @@ def marcarPedidoConcluido():
         produto.status = "pronto"
         produto.save()
         return jsonify({'message': 'Pedido marcado com sucesso!'}), 200
+    idPedido = data['pedidoId']
+    idpedidoproduto = data['idpedidoproduto']
+
+    consulta = (PedidoProduto
+                .select(PedidoProduto)
+                .join(Pedido, JOIN.INNER, on=(Pedido.id == PedidoProduto.pedido))
+                .join(Produto, JOIN.INNER, on=(PedidoProduto.produto == Produto.id))
+                .where((PedidoProduto.pedido == idPedido) & (PedidoProduto.id == idpedidoproduto))
+                .order_by(Pedido.id.asc())
+                .first())    
+    if consulta:
+        id_pedido_produto = consulta.id
+        produto = PedidoProduto.get(id = id_pedido_produto)
+        produto.status = "entregue"
+        produto.save()
+        return jsonify({'message': 'Pedido marcado com sucesso!'}), 200     
     else:
         return jsonify({'message': 'Pedido não encontrado!'}), 400
 

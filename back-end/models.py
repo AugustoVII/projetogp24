@@ -4,12 +4,14 @@ import uuid
 from decimal import Decimal
 from peewee import *
 import re
+from flask import Flask
 
+
+app = Flask(__name__)
 
 # waiterweb
 # waiterwebuepb
 
-# servidor local
 DATABASE = {
     'name': 'projetogp3',
     'user': 'postgres',
@@ -19,7 +21,6 @@ DATABASE = {
 }
 
 
-# servidor supabase
 # DATABASE = {
 #     'name': 'postgres',
 #     'user': 'postgres.dotabrjstpovpmavmqtx',

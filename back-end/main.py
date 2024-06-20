@@ -111,13 +111,66 @@ def cadastrar_estabelecimento():
     numero  = data['numero']
     email = data['email']
     conf_email = data['confirmarEmail']
-    if email == conf_email:
-        Estabelecimento.create(nome = nome, cnpj = cnpj, senha = senha, cidade = cidade, bairro = bairro, rua = rua, numero = numero, email = email)
-        criarMesas(cnpj)
+    quantMesas = int(data['quantMesas'])
 
-        return jsonify({'message': 'Estabelecimento cadastrado com sucesso'}), 200
+    try:
+        estabelecimento = Estabelecimento.create(nome = nome, cnpj = cnpj, senha = senha, cidade = cidade, bairro = bairro, rua = rua, numero = numero, email = email)
+        try:
+            for i in range(quantMesas):
+                Mesa.create(numero = i+1, status = "livre", estabelecimento_id = estabelecimento.id, active = True)
+            return jsonify({'message': 'Estabelecimento cadastrado com sucesso'}), 200       
+        except:
+            return jsonify({'message': 'aconteceu algum erro!'}), 401
+        
+    except:
+        return jsonify({'message': 'aconteceu algum erro!'}), 400
+
+
+
+@app.route('/mudarQuantMesas', methods=['POST'])
+@login_required
+@estabelecimento_required
+def mudarQuantMesas():
+    idEst = load_user(current_user.id)
+    cnpj = Estabelecimento.select(Estabelecimento.cnpj).where(Estabelecimento.id == idEst)
+    data = request.get_json()
+    quantidade = data
+    quantidadeMesas = Mesa.select().where((Mesa.estabelecimento_id == idEst)).count()
+    consulta = Mesa.select().where((Mesa.estabelecimento_id == idEst)).order_by(Mesa.numero.asc())
+    if quantidade == quantidadeMesas:
+        for mesas in consulta:
+            if mesas.numero <= quantidade:
+                mesas.active = True
+                mesas.save()
+            return jsonify({'message': 'quantidade de mesas alterada'}), 200 
+    elif quantidade >=1 and quantidade < quantidadeMesas:
+        try:
+            for mesas in consulta:
+                if mesas.numero <= quantidade:
+                    mesas.active = True
+                    mesas.save()
+                else:
+                    mesas.active = False
+                    mesas.save()
+            return jsonify({'message': 'quantidade de mesas alterada'}), 200 
+        except:
+            return jsonify({'message': 'aconteceu algum erro!'}), 400
+        
+    elif quantidade >=1 and quantidade > quantidadeMesas:
+        try:
+            for mesas in consulta:
+                if mesas.numero <= quantidade:
+                    mesas.active = True
+                    mesas.save()
+            criarMesasQuantidade(cnpj, quantidadeMesas, quantidade)
+            return jsonify({'message': 'quantidade de mesas alterada'}), 200 
+        except:
+            return jsonify({'message': 'aconteceu algum erro!'}), 400
     else:
-        return jsonify({'error': 'E-mails não coincidem'}), 400
+        return jsonify({'message': 'aconteceu algum erro!'}), 400
+
+
+
 
 
 # cadastro funcionario
@@ -333,6 +386,24 @@ def marcarPedidoConcluido():
     idPedido = data['pedidoId']
     idpedidoproduto = data['idpedidoproduto']
 
+
+    consulta = (PedidoProduto
+                .select(PedidoProduto)
+                .join(Pedido, on=(Pedido.id == PedidoProduto.pedido))
+                .join(Produto, on=(PedidoProduto.produto == Produto.id))
+                .where((PedidoProduto.pedido == idPedido) & (PedidoProduto.id == idpedidoproduto))
+                .order_by(Pedido.id.asc())
+                .first())
+
+    if consulta:
+        id_pedido_produto = consulta.id
+        produto = PedidoProduto.get(id=id_pedido_produto)
+        produto.status = "pronto"
+        produto.save()
+        return jsonify({'message': 'Pedido marcado com sucesso!'}), 200
+    idPedido = data['pedidoId']
+    idpedidoproduto = data['idpedidoproduto']
+
     consulta = (PedidoProduto
                 .select(PedidoProduto)
                 .join(Pedido, JOIN.INNER, on=(Pedido.id == PedidoProduto.pedido))
@@ -347,74 +418,67 @@ def marcarPedidoConcluido():
         produto.save()
         return jsonify({'message': 'Pedido marcado com sucesso!'}), 200     
     else:
-        return jsonify({'message': 'Pedido nao encontrado !'}), 400    
+        return jsonify({'message': 'Pedido não encontrado!'}), 400
 
 
 
+@app.route('/pedidopronto', methods=['GET'])
+@login_required
+def obterPedidosProntos():
+    usuario = load_user(current_user.id)
+    if usuario.role == "estabelecimento":
+        idEst = usuario.id
+    else:
+        idEst = usuario.estabelecimento_id
+    consulta = PedidoProduto.select(PedidoProduto, Pedido, Produto, Mesa).where((Pedido.estabelecimento_id == idEst) & (PedidoProduto.status == "pronto")).join(Pedido, JOIN.INNER, on=(Pedido.id == PedidoProduto.pedido)).join(Produto, JOIN.INNER, on=(PedidoProduto.produto == Produto.id)).join(Mesa, JOIN.INNER, on=(Pedido.mesa_id == Mesa.id)).order_by(Pedido.id.asc())
+
+    listaPedido = []
+    for pedido in consulta:
+        pedido_data = {
+            "mesa" : pedido.pedido.mesa.numero,
+            "quantidade": pedido.quantidade,
+            "prato": pedido.produto.nome,
+            "pedido": pedido.pedido.id,
+            "idpedidoproduto" : pedido.id
+          }
+        listaPedido.append(pedido_data)
+    return listaPedido
 
 
 
+@app.route('/marcarpedidoentregue', methods=['POST'])
+@login_required
+def marcarPedidoPronto():
+    usuario = load_user(current_user.id)
+    if usuario.role == "estabelecimento":
+        idEst = usuario.id
+    else:
+        idEst = usuario.estabelecimento_id
+
+    data = request.get_json()
+
+    # try:
+    idPedido = data['pedidoId']
+    idpedidoproduto = data['idpedidoproduto']
+
+
+    consulta = (PedidoProduto
+                .select(PedidoProduto)
+                .join(Pedido, on=(Pedido.id == PedidoProduto.pedido))
+                .join(Produto, on=(PedidoProduto.produto == Produto.id))
+                .where((PedidoProduto.pedido == idPedido) & (PedidoProduto.id == idpedidoproduto))
+                .order_by(Pedido.id.asc())
+                .first())
+
+    if consulta:
+        id_pedido_produto = consulta.id
+        produto = PedidoProduto.get(id=id_pedido_produto)
+        produto.status = "entregue"
+        produto.save()
+        return jsonify({'message': 'Pedido marcado com sucesso!'}), 200
+    else:
+        return jsonify({'message': 'Pedido não encontrado!'}), 400
     
-
-
-
-    
-
-
-
-
-@app.route('/abrirmesaespecifica', methods=['POST'])
-def abrirmesaespecifica():
-    data = request.get_json()
-    num = data['numero']
-    try: 
-        Mesa.create(numero = num, status = "ocupada")
-        return jsonify({'message': 'Mesa aberta com sucesso'}), 200
-    except IntegrityError as e:
-        mensagem = extrairErro(e)
-        return jsonify({'message': f"A inserção violou alguma chave: {mensagem}"}), 400
-
-@app.route('/abrirmesa', methods=['POST'])
-def abrirmesa():
-    data = request.get_json()
-    num = data['numero']
-    try: 
-        mesa = Mesa.get(numero = num)
-        mesa.status = "ocupada"
-        mesa.save()
-        return jsonify({'message': 'Mesa aberta com sucesso'}), 200
-    except IntegrityError as e:
-        mensagem = extrairErro(e)
-        return jsonify({'message': f"A inserção violou alguma chave: {mensagem}"}), 400
-
-
-
-@app.route('/fecharmesa', methods=['POST'])
-def fecharmesa():
-    data = request.get_json()
-    num = data['numero']
-    try: 
-        mesa = Mesa.get(numero = num)
-        mesa.status = "fechada"
-        mesa.save()
-        return jsonify({'message': 'Mesa fechada com sucesso'}), 200
-    except Mesa.DoesNotExist as e:
-        return jsonify({'message': f"Mesa nao encontrada"}), 400
-
-@app.route('/calcularmesa', methods=['POST'])
-def calcularmesa():
-    data = request.get_json()
-    num = data['numero']
-    try: 
-        mesa = Mesa.get(numero = num)
-        if mesa.status == "aberta" or mesa.status == "livre":
-            return jsonify({'message': 'Mesa se encontra aberta, é necessario fechar para somar'}), 400
-        else:
-            total = calcularConta(mesa.id)
-            return jsonify({'message': f'total mesa = {total}'}), 200
-    except Mesa.DoesNotExist as e:
-        return jsonify({'message': f"Mesa nao encontrada"}), 400
-
 
 @app.route('/mesas', methods=['GET'])
 @login_required
@@ -426,6 +490,99 @@ def obterStatusMesas():
     else:
         lista = obterListaMesas(usuario.estabelecimento_id)
         return lista 
+
+
+
+@app.route('/mesasocupadas', methods=['GET'])
+@login_required
+def obterMesasOcupadas():
+    usuario = load_user(current_user.id)
+    if usuario.role == "estabelecimento":
+        lista = obterListaMesasOcupadas(usuario.id)
+        return lista 
+    else:
+        lista = obterListaMesasOcupadas(usuario.estabelecimento_id)
+        return lista
+    
+
+@app.route('/contamesa/<numero>', methods=['GET'])
+@login_required
+def obterContaMesa(numero):
+    usuario = load_user(current_user.id)
+    if usuario.role == "estabelecimento":
+        id = usuario.id
+    else:
+        id = usuario.estabelecimento_id
+
+
+    consulta = (PedidoProduto
+                .select(PedidoProduto, Produto, Pedido, Mesa)
+                .join(Pedido, on=(Pedido.id == PedidoProduto.pedido))
+                .join(Produto, on=(PedidoProduto.produto == Produto.id))
+                .join(Mesa, on=(Pedido.mesa == Mesa.id))
+                .where(
+                    (Pedido.status.contains('andamento')) & 
+                    (Mesa.estabelecimento_id == id) & (Mesa.numero == numero)
+                )
+                .order_by(Produto.nome.asc())
+               )
+    
+    lista = []
+    valorConta = 0
+    for item in consulta:
+        valorConta += item.produto.valor * item.quantidade   
+        pedido_data = ({
+            'quantidade': item.quantidade,
+            'nome': item.produto.nome,
+            'valorun': item.produto.valor,
+            'valorprod': item.produto.valor * item.quantidade    
+
+        })
+        lista.append(pedido_data)
+    lista.append({'valorTotal' : valorConta})
+    return lista
+
+
+
+@app.route('/informacoesEst', methods=['GET'])
+@login_required
+def informacoesEst():
+    usuario = load_user(current_user.id)
+    try:
+        if usuario.role == "estabelecimento":
+            id = usuario.id
+            estabelecimento = Estabelecimento.get(id=id)
+            endereco = estabelecimento.obterEndereco()
+            dados = {
+                "nomeEst": estabelecimento.nome,
+                "cnpj": estabelecimento.cnpj,
+                "endereco": endereco,
+                "email": estabelecimento.email,
+                "nomeFunc": ''
+            }
+            return dados, 200
+
+        else:
+            id = usuario.estabelecimento_id
+            usuarioaux = Usuario.get(id=usuario.id)
+            estabelecimento = Estabelecimento.get(id=id)
+            endereco = estabelecimento.obterEndereco()
+            dados = {
+                "nomeEst": estabelecimento.nome,
+                "cnpj": estabelecimento.cnpj,
+                "endereco": endereco,
+                "email": estabelecimento.email,
+                "nomeFunc": usuarioaux.nome
+            }
+            return dados, 200
+    except Exception as e:
+        return jsonify({'message': f'Erro: {str(e)}'}), 400
+
+
+    
+    
+
+
 
 
 

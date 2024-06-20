@@ -44,17 +44,25 @@ def excluirFuncionario(id):
     except Usuario.DoesNotExist:
         return False  # Usuário não encontrado
 
-def criarMesas(cnpj):
+def criarMesas(cnpj, quant):
     try: 
         x = Estabelecimento.get(cnpj=cnpj)
-        for i in range(1,101):
-            Mesa.create(numero = i, status = "livre", estabelecimento_id = x.id)
+        for i in range(quant+1):
+            Mesa.create(numero = i+1, status = "livre", estabelecimento_id = x.id, active = True)
+    except Estabelecimento.DoesNotExist :
+        return 'estabelecimento não encontrado' 
+    
+def criarMesasQuantidade(cnpj, quantatual, quantfinal):
+    try: 
+        x = Estabelecimento.get(cnpj=cnpj)
+        for i in range(quantatual+1,quantfinal+1):
+            Mesa.create(numero = i, status = "livre", estabelecimento_id = x.id, active = True)
     except Estabelecimento.DoesNotExist :
         return 'estabelecimento não encontrado' 
     
 def obterListaMesas(idEstabelecimento):
     try:
-        mesas = Mesa.select().where(Mesa.estabelecimento_id == idEstabelecimento).order_by(Mesa.numero.asc())
+        mesas = Mesa.select().where((Mesa.estabelecimento_id == idEstabelecimento) & Mesa.active == True).order_by(Mesa.numero.asc())
         lista_mesas = []
         for mesa in mesas:
             mesa_data = {
@@ -66,6 +74,26 @@ def obterListaMesas(idEstabelecimento):
         return {'mesas': lista_mesas}
     except :
         return 'estabelecimento não encontrado'
+
+def obterListaMesasOcupadas(idEstabelecimento):
+    try:
+        mesas = Mesa.select().where((Mesa.estabelecimento_id == idEstabelecimento) & Mesa.active == True).order_by(Mesa.numero.asc())
+        lista_mesas = []
+        for mesa in mesas:
+            if mesa.status == 'ocupada':
+                mesa_data = {
+                    'id' : mesa.id,
+                    'numero' : mesa.numero,
+                    'status' : mesa.status
+                }
+                lista_mesas.append(mesa_data)
+        return {'mesas': lista_mesas}
+    except :
+        return 'estabelecimento não encontrado'
+
+
+
+
 
 def obterListaProdutos(idEstab):
     try:

@@ -10,11 +10,12 @@ def popularBanco():
     Estabelecimento.create(nome = "Mormaço", cnpj = cnpj2, senha = generate_password_hash("12345678"), email = "mormaço@gmail.com", cidade = "sao mamede", bairro = "centro", rua = "januncio", numero = "15"  )
 
     est1 = Estabelecimento.get(cnpj = cnpj1)
-    criarMesas(cnpj1)
+    criarMesas(cnpj1,14 )
     idest1 = est1.id
     est2 = Estabelecimento.get(cnpj = cnpj2)
-    criarMesas(cnpj2)
+    criarMesas(cnpj2,15)
     idest2 = est2.id
+
 
     garcom1 = Usuario.create(nome = "joao garcom", usuario = "joao garcom",senha = generate_password_hash("12345678"), tipo = "garcom", estabelecimento_id = idest1, role = "garcom" )
     gerente1 = Usuario.create(nome = "jose gerente", usuario = "jose gerente",senha = generate_password_hash("12345678"), tipo = "gerente", estabelecimento_id = idest1, role = "gerente" )

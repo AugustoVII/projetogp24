@@ -37,6 +37,14 @@ body{
     cursor: pointer; 
     max-height: 100px; /* Defina o tamanho máximo da altura da imagem */
 }
+
+.imagemEngrenagem {
+    max-width: 50px; /* Defina o tamanho máximo da largura da imagem */
+    cursor: pointer; 
+    max-height: 50px; /* Defina o tamanho máximo da altura da imagem */
+    margin-left: 10%;
+}
+
 .liMesa {
     position: relative;
     display: inline-block; /* Certifique-se de que o <li> seja exibido como um bloco em linha */
@@ -96,6 +104,7 @@ body{
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 1000; 
   }
   
   .modalContent {
@@ -164,6 +173,15 @@ body{
     word-break: break-word;
     
 }
+
+.mensage{
+    font-size: medium;
+    text-align: center;
+    margin-bottom: 2%;
+    word-break: break-word;
+    
+}
+
 .inputlist{
     background-color:#bf9e64;
     border-radius: 50px; 
@@ -184,7 +202,6 @@ body{
     max-height: 250px; 
     overflow-y: auto;
     width: 100%;
-
     background: linear-gradient(to left, #e0e0e08a, #ffffff8a); 
     border: 3px solid #847663;
     box-shadow: 5px 10px 4px rgba(0, 0, 0, 0.2);

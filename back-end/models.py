@@ -12,7 +12,6 @@ app = Flask(__name__)
 # waiterweb
 # waiterwebuepb
 
-# banco local
 DATABASE = {
     'name': 'projetogp3',
     'user': 'postgres',
@@ -22,7 +21,6 @@ DATABASE = {
 }
 
 
-# banco supabase
 # DATABASE = {
 #     'name': 'postgres',
 #     'user': 'postgres.dotabrjstpovpmavmqtx',
@@ -70,6 +68,8 @@ class Estabelecimento(BaseModel, UserMixin):
 
     def __repr__(self):
         return f"Estabelecimento: {self}"
+    def obterEndereco(self):
+        return f"Rua: {self.rua}, n° {self.numero}, {self.bairro}, {self.cidade} "
 
 
 class Usuario(BaseModel, UserMixin):
@@ -146,10 +146,13 @@ class Mesa(BaseModel):
     numero = IntegerField()
     status = CharField(choices=['livre', 'ocupada', 'fechada'])
     estabelecimento_id = ForeignKeyField(Estabelecimento, backref='mesas')
+    active = BooleanField(default = True)
 
     def listar_pedidos(self):
         # Retornar todos os pedidos associados a esta mesa
         return self.pedidos
+    def mudarActive(self, estado):
+        self.active = estado
     
 # Classe para Pedido
 class Pedido(BaseModel):
@@ -187,7 +190,7 @@ class PedidoProduto(BaseModel):
     pedido = ForeignKeyField(Pedido, backref='itens_pedido')
     produto = ForeignKeyField(Produto)
     quantidade = IntegerField(default=1)
-    status = CharField(choices=['preparando', 'entregue'])
+    status = CharField(choices=['preparando', 'entregue', "pronto"])
 
 
 

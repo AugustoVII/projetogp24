@@ -6,6 +6,7 @@ import { FaBuilding, FaRegAddressCard, FaRoad } from "react-icons/fa";
 import { FaCity, FaTreeCity } from "react-icons/fa6";
 import { MdOutlineMail, MdEmail} from "react-icons/md";
 import { Link } from 'react-router-dom';
+import { MdTableRestaurant } from "react-icons/md";
 
 function CadastroEstabelecimento(){
 
@@ -59,6 +60,10 @@ function CadastroEstabelecimento(){
           setMensagem('Insira um email válido');
           return; 
       }
+        if (quantMesas < 0){
+            setMensagem('Numero de mesas inválido.');
+            return; 
+        }
       const formData = {
         nome,
         cnpj,
@@ -68,7 +73,8 @@ function CadastroEstabelecimento(){
         rua,
         numero,
         email,
-        confirmarEmail
+        confirmarEmail,
+        quantMesas
     };
 
     fetch('/cadastrar', {
@@ -114,6 +120,7 @@ function CadastroEstabelecimento(){
     const [numero, setNumero] = useState('');
     const [email, setEmail] = useState ('');
     const [confirmarEmail, setConfirmarEmail] = useState ('');
+    const [quantMesas, setquantMesas] = useState ('');
 
     return(
         <div>
@@ -204,13 +211,22 @@ function CadastroEstabelecimento(){
                         required/>
                     </div>    
                 </div>
+                <div >
+                <p className={styles.namegroup}><MdTableRestaurant /> Quantidade de mesas:</p>
+                        <input type="number"
+                        className={styles.input} 
+                        placeholder="Informe a a quantidade de mesas" 
+                        value={quantMesas} 
+                        onChange={(e) => setquantMesas(e.target.value)}
+                        required/>
+                </div>
                 <div>
                     <p>Já possui cadastro?<Link to="/login">Login</Link> </p>
                 </div>  
                 <div>
                     <p>{mensagem}</p>
                 </div>    
-                <div>
+                <div >
                     <input className={styles.bottomgroup} type="submit" value="Cadastrar"/>
                 </div>
             </form>

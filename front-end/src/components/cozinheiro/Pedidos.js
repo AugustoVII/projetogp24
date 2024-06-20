@@ -1,11 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../css/Pedidos.module.css';
 import axios from 'axios';
+import Modal from '../modal/Modal';
 
 function Pedidos() {
   const [selectedPedido, setSelectedPedido] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const [pedidos, setPedidos] = useState([]);
   const [mensagem, setMensagem] = useState('');
+
+  const handleConfirm = () => {
+    // Verifique se selectedPedido está definido
+    if (!selectedPedido) return;
+
+    // Lógica de confirmação, por exemplo, atualizando o status do pedido
+    const formData = {
+      pedidoId: selectedPedido.pedido, // Envie o ID do pedido
+      idpedidoproduto: selectedPedido.idpedidoproduto, // Envie o ID do pedidoproduto
+    };
+
+    axios.post('/marcarpedido', formData)
+      .then(response => {
+        // Verifique o status da resposta para determinar se a requisição foi bem-sucedida
+        if (response.status === 200) { // Verifique o status 200 para sucesso
+          setMensagem('Pedido marcado como concluído!');
+          // Atualize a lista de pedidos removendo o pedido concluído baseado no idpedidoproduto
+          setPedidos(prevPedidos => prevPedidos.filter(p => p.idpedidoproduto !== selectedPedido.idpedidoproduto));
+        } else {
+          setMensagem('Erro ao marcar o pedido como concluído. Tente novamente.');
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao enviar:', error);
+        setMensagem('Erro ao enviar. Tente novamente.');
+      });
+    setShowModal(false);
+  };
 
   useEffect(() => {
     const fetchPedidos = async () => {
@@ -17,7 +47,6 @@ function Pedidos() {
       }
     };
 
-    // Função para buscar pedidos a cada 5 segundos
     const interval = setInterval(fetchPedidos, 3000); // Consulta a cada 3 segundos (ajuste conforme necessário)
 
     // Limpa o intervalo quando o componente é desmontado
@@ -25,6 +54,14 @@ function Pedidos() {
   }, []);
 
   const handlePedidoClick = (pedido) => {
+
+    setSelectedPedido(pedido);
+    setShowModal(true);
+  };
+
+  const handleClose = () => {
+    setShowModal(false);
+
     if (window.confirm('Confirmar pedido')) {
       setSelectedPedido(pedido);
   
@@ -50,7 +87,6 @@ function Pedidos() {
         });
     }
   };
-  
 
   return (
     <div className={styles.divPrinc}>
@@ -79,6 +115,11 @@ function Pedidos() {
           </li>
         ))}
       </ul>
+      {showModal && (
+        <Modal show={showModal} handleClose={handleClose} handleConfirm={handleConfirm}>
+          <p className={styles.titulo}>Tem certeza que deseja confirmar o pedido?</p>
+        </Modal>
+      )}
     </div>
   );
 }

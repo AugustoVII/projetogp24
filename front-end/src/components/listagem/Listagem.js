@@ -1,8 +1,28 @@
 import { useState, useEffect } from 'react';
 import styles from '../css/Listagem.module.css';
-
+import Modal from '../modal/Modal';
 function Listagem() {
   const [usuarios, setUsuarios] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
+  
+  const handleConfirm = () => {
+    fetch(`/excluirusuario/${usuarioSelecionado}`, {
+      method: 'GET',
+    })
+    .then(response => {
+      if (response.ok) {
+        console.log('Usuário excluído com sucesso.');
+        window.location.reload();
+      } else {
+        console.error('Falha ao excluir usuário.');
+      }
+    })
+    .catch(error => {
+      console.error('Erro ao excluir usuário:', error);
+    });
+    setShowModal(false);
+  };
 
   useEffect(() => {
     fetch('/listausuario')
@@ -15,23 +35,14 @@ function Listagem() {
       });
   }, []); 
 
+  const handleClose = () => {
+    setShowModal(false);
+  };
   const excluirUsuario = (id) => {
-    if (window.confirm('Tem certeza que deseja excluir?')) {
-      fetch(`/excluirusuario/${id}`, {
-        method: 'GET',
-      })
-      .then(response => {
-        if (response.ok) {
-          console.log('Usuário excluído com sucesso.');
-          window.location.reload();
-        } else {
-          console.error('Falha ao excluir usuário.');
-        }
-      })
-      .catch(error => {
-        console.error('Erro ao excluir usuário:', error);
-      });
-    }
+    // Define o usuário selecionado para exclusão
+    setUsuarioSelecionado(id);
+    // Abre o modal de confirmação
+    setShowModal(true);
   };
   
   return (
@@ -66,6 +77,11 @@ function Listagem() {
           </table>
         </div>
       </div>
+      {showModal &&(
+        <div><Modal show={showModal} handleClose={handleClose} handleConfirm={handleConfirm}>
+        <p className={styles.titulo}>Tem certeza que deseja excluir o usuario?</p>
+      </Modal></div>
+      )}
     </div>
   );
 }

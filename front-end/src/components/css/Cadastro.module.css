@@ -58,11 +58,11 @@ body{
     transition: background-color 0.3s ease;
 }
 .bottomgroup:hover {
-    background-color:  #bf9e64;/* Altera a cor de fundo ao passar o mouse */
+    background-color:  #bf9e64;
 }
 
 .bottomgroup:active {
-    background-color: #926b27;/* Altera a cor de fundo ao clicar */
+    background-color: #926b27;
 }
 .checkboxgoup{
     background-color: #2980b9;
